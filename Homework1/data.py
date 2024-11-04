@@ -51,7 +51,7 @@ def fetch_data_for_issuer(issuer_code, startDate, endDate):
 end_date = datetime.now()
 # 12 years of data
 start_date = end_date - timedelta(days=365 * 12)
-# start_date = end_date - timedelta(days=3650)  # 10 years ago
+# start_date = end_date - timedelta(days=3650)  # 12 years ago
 
 issuers = [
     "ADIN", "ALK", "CKB", "DEBA", "DIMI",
