@@ -1,4 +1,5 @@
-
+<h3>The team consists of the following members (contributors):</h3>
+<hr>
 <ul>
   <li>
      <a href="https://www.linkedin.com/in/stefan-tagarski-942518265/">Стефан Тагарски</a> - 221184
