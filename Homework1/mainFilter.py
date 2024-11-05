@@ -88,14 +88,16 @@ def fetch_and_filter_missing_data():
 
             if last_date < today - timedelta(days=1):
                 start_date = last_date + timedelta(days=1)
-                print(f"Fetching missing data for {issuer} from {start_date.strftime('%d.%m.%Y')} to {today.strftime('%d.%m.%Y')}")
+                print(
+                    f"Fetching missing data for {issuer} from {start_date.strftime('%d.%m.%Y')} to {today.strftime('%d.%m.%Y')}")
                 new_data = fetch_data_for_issuer(issuer, start_date, today)
                 all_data = pd.concat([all_data, new_data], ignore_index=True)
             else:
                 print(f"No additional data needed for {issuer}.")
         else:
             start_date = today - timedelta(days=365 * 12)
-            print(f"No data found for {issuer}. Fetching data from {start_date.strftime('%d.%m.%Y')} to {today.strftime('%d.%m.%Y')}")
+            print(
+                f"No data found for {issuer}. Fetching data from {start_date.strftime('%d.%m.%Y')} to {today.strftime('%d.%m.%Y')}")
             new_data = fetch_data_for_issuer(issuer, start_date, today)
             all_data = pd.concat([all_data, new_data], ignore_index=True)
 
