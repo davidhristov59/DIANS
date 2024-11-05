@@ -2,11 +2,14 @@
 вашата апликациjа целосно да jа наполни празната база на податоци со податоците за берзата.
 Оптимизираjте го овоj процес за максимална брзина и ефикасност.
 
-тајмерот е имплементиран во filter3.py каде ја вчитуваме денешната берза и ја внесуваме во базата на податоци  која е
+тајмерот е имплементиран во filter3.py (и во mainFilter.py) каде ја вчитуваме денешната берза и ја внесуваме во базата на податоци  која е
 зачувана во filtered_stock_data.csv
 
 
-output:
+output (filter3.py):
 Today's stock data written to 'todays_stock.csv'.
 Time taken to fetch and save today's stock data: 19.40 seconds.
 Filtered today's data appended to 'filtered_stock_data.csv'.
+
+output (mainFilter.py):
+Time taken to execute the code: 33.94 seconds
