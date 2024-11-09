@@ -74,7 +74,7 @@ def fetch_and_filter_missing_data():
         "TEAL", "TEHN", "TEL", "TETE", "TIKV", "TKPR", "TKVS", "TNB",
         "TRDB", "TRPS",
         "TSMP", "TTK", "UNI", "USJE", "VITA",
-        "VROS", "VTKS", "ZAS", "ZILU", "ZILUP", "ZIMS", "ZKAR", "ZPKO"
+        "VROS", "VTKS", "ZAS", "ZILU", "ZILUP", "ZIMS", "ZKAR", "ZPKO", "OMOS"
     ]
 
     all_data = pd.DataFrame()
