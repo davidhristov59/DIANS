@@ -1,7 +1,7 @@
-<h3>**Note**</h3>
-<hr>
-<br>
-Running filter3.py will overwrite the data in todays_stock.csv every day, and the updated data will be stored in filtered_stock.csv (where all the previous filtered data is stored).
+Runtime for the mainFilter.py is  (append today's stock data to the filtered_stock_data.csv data):
+output:
+Time taken to execute the code: 36.42 seconds
 
-<h2>**UPDATE**</h2>
-Running the mainFilter.py will get you every functionality from all the filters, and you will have filtered up-to date data in filtered_stock.csv
+
+Runtime for data.py (retrieving historical data from the past 12 years) is :
+Time taken to fetch and save historical stock data: 429.40 seconds.
