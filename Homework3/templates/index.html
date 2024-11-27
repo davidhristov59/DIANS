@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today's Stock Exchanges</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Google Fonts for better typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Roboto+Mono&display=swap"
+          rel="stylesheet">
+    <style>
+        /* Global styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f5f7;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            margin: 40px auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1c2b3a;
+            font-size: 32px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        #load-data-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 30px;
+            font-size: 18px;
+            background-color: #0063B1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #load-data-btn:hover {
+            background-color: #004b8d;
+        }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #loading-message {
+            font-size: 20px;
+            color: white;
+            font-weight: 500;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: #0063B1;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        td:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        /* Alert for no data */
+        .alert {
+            background-color: #f44336;
+            color: white;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            #load-data-btn {
+                font-size: 16px;
+                padding: 10px 20px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Today's Stock Exchanges</h1>
+    <button id="load-data-btn">Show Today's Data</button>
+
+    <!-- Loading overlay -->
+    <div id="loading-overlay">
+        <div id="loading-message">Loading, please wait...</div>
+    </div>
+
+    <!-- Alert for no data -->
+    <div id="no-data-alert" class="alert" style="display: none;">
+        No stock data found for today.
+    </div>
+
+    <table id="stock-table">
+        <thead>
+        <tr>
+            <th>Issuer Name</th>
+            <th>Date</th>
+            <th>Last Transaction Price</th>
+            <th>Max.</th>
+            <th>Min.</th>
+            <th>Average Price</th>
+            <th>% Change</th>
+            <th>Quantity</th>
+            <th>Turnover in BEST in Denars</th>
+            <th>Total Turnover in Denars</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#load-data-btn').click(function () {
+            // Show loading overlay
+            $('#loading-overlay').show();
+
+            $.getJSON('/get_todays_data', function (data) {
+                // Hide loading overlay after data is received
+                $('#loading-overlay').hide();
+
+                if (data.length === 0) {
+                    $('#no-data-alert').show();  // Show the no data alert
+                    $('#stock-table tbody').empty(); // Clear any previous data
+                } else {
+                    $('#no-data-alert').hide();  // Hide the no data alert
+                    let tableBody = $('#stock-table tbody');
+                    tableBody.empty();
+
+                    data.forEach(row => {
+                        let tr = $('<tr>');
+
+                        // Check if the % Change is negative or positive and apply the corresponding class
+                        let changePercentage = parseFloat(row['% Change'].replace(',', '.'));  // Replace ',' with '.'
+
+                        // Color the text based on percentage change
+                        if (changePercentage < 0.0) {
+                            tr.css('color', 'red');  // Light red for negative change
+                        } else if (changePercentage > 0.0) {
+                            tr.css('color', 'green');  // Light green for positive change
+                        } else {
+                            tr.css('color', 'black');  // Black for no change
+                        }
+
+                        // Populate the row with data from the backend
+                        tr.append($('<td>').text(row['Issuer Name']));  // Issuer Name
+                        tr.append($('<td>').text(row['Date']));  // Date
+                        tr.append($('<td>').text(row['Last Transaction Price']));  // Last Transaction Price
+                        tr.append($('<td>').text(row['Max.']));  // Max
+                        tr.append($('<td>').text(row['Min.']));  // Min
+                        tr.append($('<td>').text(row['Average Price']));  // Average Price
+                        tr.append($('<td>').text(row['% Change']));  // % Change
+                        tr.append($('<td>').text(row['Quantity']));  // Quantity
+                        tr.append($('<td>').text(row['Turnover in BEST in Denars']));  // Turnover in BEST in Denars
+                        tr.append($('<td>').text(row['Total Turnover in Denars']));  // Total Turnover in Denars
+
+                        tableBody.append(tr);
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
