@@ -81,6 +81,7 @@ def technical_analysis():
     return render_template('technicalAnalysis.html', issuers=issuers)
 
 
+
 @app.route('/technicalAnalysis', methods=['POST'])
 def analyze():
     """Analyze the selected issuer's stock data."""
