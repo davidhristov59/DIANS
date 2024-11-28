@@ -2,7 +2,7 @@ import pandas as pd
 
 # Read the CSV file
 input_file = 'historical_stock_data.csv'
-output_file = 'filtered_stock_data.csv'
+output_file = '../Homework3/filtered_stock_data.csv'
 
 df = pd.read_csv(input_file)
 
