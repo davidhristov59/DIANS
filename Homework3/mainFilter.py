@@ -50,7 +50,7 @@ def fetch_data_for_issuer(issuer_code, start_date, end_date):
 
 
 def fetch_and_filter_missing_data():
-    input_file = 'filtered_stock_data.csv'
+    input_file = '../Homework1/filtered_stock_data.csv'
     try:
         df = pd.read_csv(input_file, parse_dates=['Date'], dayfirst=True)
         print("Existing data loaded successfully.")

@@ -6,7 +6,7 @@ from ta import momentum, trend
 app = Flask(__name__)
 
 # Path to the filtered stock data file
-DATA_FILE = "filtered_stock_data.csv"
+DATA_FILE = "../Homework1/filtered_stock_data.csv"
 
 
 # Custom function to handle Macedonian number format (e.g., 2.440,00 -> 2440.00)
@@ -60,13 +60,18 @@ def get_todays_data():
         df['Average Price'] = df['Average Price'].apply(parse_macedonian_price)
 
         # Get today's date
-        today = datetime.datetime.now().date()
+        today = datetime.datetime.now().replace(hour=15, minute=0, second=0, microsecond=0).date()
 
         # Filter today's data
         todays_data = df[df['Date'].dt.date == today]
 
         if todays_data.empty:
             return jsonify([])
+
+        # Add fixed time (15:00:00) to the 'Date' column
+        todays_data['Date'] = todays_data['Date'].apply(
+            lambda d: d.replace(hour=15, minute=0, second=0).strftime('%Y-%m-%d %H:%M:%S')
+        )
 
         # Return today's data as JSON
         return jsonify(todays_data.to_dict(orient='records'))

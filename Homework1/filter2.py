@@ -2,7 +2,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 # File paths
-input_file = '../Homework3/filtered_stock_data.csv'
+input_file = 'filtered_stock_data.csv'
 
 try:
     df = pd.read_csv(input_file, parse_dates=['Date'], dayfirst=True)
