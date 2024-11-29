@@ -5,7 +5,11 @@ from flask import Flask, render_template, request, jsonify
 from ta import momentum, trend
 import matplotlib.pyplot as plt
 import matplotlib
+
 matplotlib.use('Agg')
+import io
+import base64
+
 app = Flask(__name__)
 
 # Path to the filtered stock data file
@@ -112,19 +116,15 @@ def technical_analysis():
 
 
 def plot_average_price_chart(issuer, df):
-    """Generate and save a line chart for the selected issuer's average price over time."""
-    issuer_data = df[df['Issuer Name'] == issuer].copy()  # Use .copy() to avoid modifying a view
+    """Generate and return a base64-encoded line chart for the selected issuer's average price over time."""
+    issuer_data = df[df['Issuer Name'] == issuer].copy()
 
     if issuer_data.empty:
         return None
 
-    # Ensure that the 'Average Price' column is numeric using .loc to avoid SettingWithCopyWarning
     issuer_data.loc[:, 'Average Price'] = pd.to_numeric(issuer_data['Average Price'], errors='coerce')
-
-    # Drop rows with NaN values in the 'Average Price' column using .loc
     issuer_data.dropna(subset=['Average Price'], inplace=True)
 
-    # Prepare the data for the line chart
     issuer_data = issuer_data[['Date', 'Average Price']]
     issuer_data.set_index('Date', inplace=True)
 
@@ -132,7 +132,6 @@ def plot_average_price_chart(issuer, df):
     plt.figure(figsize=(10, 6))
     plt.plot(issuer_data.index, issuer_data['Average Price'], label=f'{issuer} Average Price', color='blue')
 
-    # Formatting the chart
     plt.title(f'{issuer} Average Price Over Time')
     plt.xlabel('Date')
     plt.ylabel('Average Price')
@@ -140,30 +139,30 @@ def plot_average_price_chart(issuer, df):
     plt.grid(True)
     plt.legend()
 
-    # Save the graph as a PNG image in the static folder
-    graph_filename = f"{issuer}_average_price_chart.png"
-    graph_path = os.path.join(GRAPH_FOLDER, graph_filename)
-    plt.savefig(graph_path)  # Save the figure instead of showing it in a GUI
-    plt.close()  # Close the plot to avoid Matplotlib GUI warning
+    # Save the figure to an in-memory buffer
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    plt.close()
 
-    return f'graphs/{graph_filename}'
+    # Encode the buffer content to base64
+    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+
+    return img_base64
+
 
 @app.route('/graphs', methods=['GET', 'POST'])
 def show_graphs():
-    """Render the graphs page and handle graph generation."""
     if request.method == 'POST':
-        # Get the selected issuer
         issuer = request.form.get('issuer')
 
-        # Validate issuer selection
         if issuer not in issuers:
             return render_template('graphs.html', issuers=issuers, error="Invalid issuer selected.")
 
-        # Generate the Average Price chart
-        graph_path = plot_average_price_chart(issuer, df)
+        graph_base64 = plot_average_price_chart(issuer, df)
 
-        if graph_path:
-            return render_template('graphs.html', issuers=issuers, graph_path=graph_path, selected_issuer=issuer)
+        if graph_base64:
+            return render_template('graphs.html', issuers=issuers, graph_base64=graph_base64, selected_issuer=issuer)
         else:
             return render_template('graphs.html', issuers=issuers, error="No data available for the selected issuer.")
 

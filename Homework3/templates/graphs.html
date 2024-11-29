@@ -13,12 +13,12 @@
         <p style="color: red;">{{ error }}</p>
     {% endif %}
 
-    <!-- Display the graph if the graph path is available -->
-    {% if graph_path %}
-    <img src="{{ url_for('static', filename=graph_path) }}" alt="Stock Price Graph">
-{% else %}
-    <p>No graph available.</p>
-{% endif %}
+    <!-- Display the graph if the base64 string is available -->
+    {% if graph_base64 %}
+        <img src="data:image/png;base64,{{ graph_base64 }}" alt="Stock Price Graph">
+    {% else %}
+        <p>No graph available.</p>
+    {% endif %}
 
     <form method="POST">
         <label for="issuer">Select Issuer:</label>
