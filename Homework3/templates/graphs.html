@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphs</title>
+</head>
+<body>
+    <h1>Graphs</h1>
+
+    <!-- Display error message if exists -->
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <!-- Display the graph if the graph path is available -->
+    {% if graph_path %}
+    <img src="{{ url_for('static', filename=graph_path) }}" alt="Stock Price Graph">
+{% else %}
+    <p>No graph available.</p>
+{% endif %}
+
+    <form method="POST">
+        <label for="issuer">Select Issuer:</label>
+        <select name="issuer" id="issuer">
+            {% for issuer in issuers %}
+                <option value="{{ issuer }}">{{ issuer }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Generate Graph</button>
+    </form>
+</body>
+</html>
