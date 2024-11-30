@@ -52,7 +52,7 @@ def index():
 
 @app.route('/get_todays_data', methods=['GET'])
 def get_todays_data():
-    """Fetch today's stock data."""
+    """Fetch today's stock data or the last available stock data."""
     try:
         df = pd.read_csv(DATA_FILE, dtype={'Date': 'object'})
         df['Date'] = pd.to_datetime(df['Date'], format='%d.%m.%Y')
@@ -60,6 +60,11 @@ def get_todays_data():
 
         today = datetime.datetime.now().date()
         todays_data = df[df['Date'].dt.date == today]
+
+        # If today's data is empty, find the last available date with data
+        if todays_data.empty:
+            last_available_date = df['Date'].max().date()
+            todays_data = df[df['Date'].dt.date == last_available_date]
 
         if todays_data.empty:
             return jsonify([])
