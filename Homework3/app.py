@@ -159,7 +159,6 @@ def plot_average_price_chart(issuer, df):
     return img_base64
 
 
-
 @app.route('/graphs', methods=['GET', 'POST'])
 def show_graphs():
     if request.method == 'POST':
