@@ -121,22 +121,27 @@ def technical_analysis():
 
 
 def plot_average_price_chart(issuer, df):
-    """Generate and return a base64-encoded line chart for the selected issuer's average price over time."""
     issuer_data = df[df['Issuer Name'] == issuer].copy()
 
     if issuer_data.empty:
         return None
 
+    issuer_data['Date'] = pd.to_datetime(issuer_data['Date'], errors='coerce')
     issuer_data.loc[:, 'Average Price'] = pd.to_numeric(issuer_data['Average Price'], errors='coerce')
-    issuer_data.dropna(subset=['Average Price'], inplace=True)
 
-    issuer_data = issuer_data[['Date', 'Average Price']]
+    issuer_data.dropna(subset=['Date', 'Average Price'], inplace=True)
+
     issuer_data.set_index('Date', inplace=True)
+    issuer_data.sort_index(inplace=True)
 
-    # Generate the line chart for Average Price over time
+    issuer_data['Average Price'] = issuer_data['Average Price'].interpolate()
+
+    # Generate the line chart
     plt.figure(figsize=(10, 6))
-    plt.plot(issuer_data.index, issuer_data['Average Price'], label=f'{issuer} Average Price', color='blue')
-
+    plt.plot(
+        issuer_data.index, issuer_data['Average Price'],
+        label=f'{issuer} Average Price', color='blue', linestyle='-', linewidth=2
+    )
     plt.title(f'{issuer} Average Price Over Time')
     plt.xlabel('Date')
     plt.ylabel('Average Price')
@@ -144,16 +149,15 @@ def plot_average_price_chart(issuer, df):
     plt.grid(True)
     plt.legend()
 
-    # Save the figure to an in-memory buffer
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
     plt.close()
 
-    # Encode the buffer content to base64
     img_base64 = base64.b64encode(buf.read()).decode('utf-8')
 
     return img_base64
+
 
 
 @app.route('/graphs', methods=['GET', 'POST'])
