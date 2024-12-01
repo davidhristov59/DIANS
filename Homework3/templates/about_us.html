@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='indexStyle.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<style>
+        .email-link {
+            color: black;
+            text-decoration: none;
+        }
+    </style>
+<body>
+    <div class="about-container">
+        <h1>About Us</h1>
+        <p class="paragraph">
+            We are a team of 3 software engineering students @FCSE Skopje who aim to make an innovative project focused on stock prediction. This project aims to leverage advanced algorithms and data analysis techniques to forecast stock market trends and provide valuable insights for investors. By combining our expertise in software development, data science, and financial analysis, we are developing a robust and user-friendly application that can analyze historical stock data, identify patterns, and predict future stock prices with high accuracy
+        </p>
+
+        <h2>Contributors</h2>
+        <div class="contributors">
+            <!-- Contributor 1 -->
+            <div class="card">
+                <img src="{{ url_for('static', filename='/images/stefan.jpeg') }}" alt="Contributor 1" class="profile-pic">
+                <h3>Stefan Tagarski</h3>
+                <p>
+                    <a href="mailto:stefantagarski@gmail.com" class="email-link">stefantagarski@gmail.com</a>
+                </p>
+                <div class="social-links">
+                    <a href="https://github.com/stefantagarski" target="_blank" title="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/stefan-tagarski-942518265/" target="_blank" title="LinkedIn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- Contributor 2 -->
+            <div class="card">
+                <img src="{{ url_for('static', filename='/images/david.jpeg') }}" alt="Contributor 2" class="profile-pic">
+                <h3>David Hristov</h3>
+                <p>
+                    <a href="mailto:davidhristov10@gmail.com" class="email-link">davidhristov10@gmail.com</a>
+                </p>
+                <div class="social-links">
+                    <a href="https://github.com/davidhristov59" target="_blank" title="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/david-hristov-0985a4176/" target="_blank" title="LinkedIn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- Contributor 3 -->
+            <div class="card">
+                <img src="{{ url_for('static', filename='/images/nikola.jpeg') }}" alt="Contributor 3" class="profile-pic">
+                <h3>Nikola Dulev</h3>
+                <p>
+                    <a href="mailto:nikoladulev13@gmail.com" class="email-link"> nikoladulev13@gmail.com</a>
+                </p>
+                <div class="social-links">
+                    <a href="https://github.com/dulev23" target="_blank" title="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/nikola-dulev/" target="_blank" title="LinkedIn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

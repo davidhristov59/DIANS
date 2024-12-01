@@ -177,5 +177,9 @@ def show_graphs():
     return render_template('graphs.html', issuers=issuers)
 
 
+@app.route('/about')
+def about():
+    return render_template('about_us.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
