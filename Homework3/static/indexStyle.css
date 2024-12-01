@@ -18,7 +18,7 @@ body {
 }
 
 h1 {
-    color: #1c2b3a;
+    color: #003366;
     font-size: 32px;
     font-weight: 500;
     margin-bottom: 20px;
@@ -42,6 +42,10 @@ nav .nav-links {
     max-width: 600px; /* Limit the width for better alignment */
 }
 
+nav .nav-links a:nth-child(1) {
+    margin-top: 10px;
+}
+
 nav .nav-links a {
     background-color: #0056b3;
     color: white;
@@ -50,8 +54,7 @@ nav .nav-links a {
     font-weight: 500;
     border-radius: 8px;
     text-align: center;
-    transition: all 0.3s ease; /* Smooth transition for hover effect */
-    /*box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); !* Subtle shadow *!*/
+    transition: all 0.3s ease;
 }
 
 nav .nav-links a:hover {
@@ -73,9 +76,10 @@ nav .nav-links a:hover {
 /* Center the "Today's Stock Exchanges" heading */
 .centered-heading {
     text-align: center;
-    color: #1c2b3a;
+    color: #003366;
     font-size: 28px;
     margin-bottom: 40px;
+    font-weight: 500;
 }
 
 /* Button */
