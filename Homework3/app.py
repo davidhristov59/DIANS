@@ -1,40 +1,44 @@
-from flask import Flask, render_template, request, jsonify
-import pandas as pd
+import os
 import datetime
+import pandas as pd
+from flask import Flask, render_template, request, jsonify
 from ta import momentum, trend
+import matplotlib.pyplot as plt
+import matplotlib
+
+matplotlib.use('Agg')
+import io
+import base64
 
 app = Flask(__name__)
 
 # Path to the filtered stock data file
-DATA_FILE = "filtered_stock_data.csv"
+DATA_FILE = "../Homework1/filtered_stock_data.csv"
+
+# Path to save generated graphs
+GRAPH_FOLDER = os.path.join('static', 'graphs')
+if not os.path.exists(GRAPH_FOLDER):
+    os.makedirs(GRAPH_FOLDER)
 
 
 # Custom function to handle Macedonian number format (e.g., 2.440,00 -> 2440.00)
 def parse_macedonian_price(price_str):
     try:
-        # Remove thousand separator (.)
-        price_str = price_str.replace('.', '')
-        # Replace decimal separator (,) with dot (.)
-        price_str = price_str.replace(',', '.')
+        price_str = price_str.replace('.', '').replace(',', '.')
         return float(price_str)
     except ValueError:
         return None  # Return None if parsing fails
 
 
-# Load data initially to fetch issuers
+# Load and preprocess stock data
 try:
-    # Read the CSV and treat the 'Date' column as a string (object)
     df = pd.read_csv(DATA_FILE, dtype={'Date': 'object'})
-
-    # Convert 'Date' column to datetime using the specific format
     df['Date'] = pd.to_datetime(df['Date'], format='%d.%m.%Y')
-
-    # Apply the custom parsing to the 'Average Price' column
     df['Average Price'] = df['Average Price'].apply(parse_macedonian_price)
-
-    # Fetch the list of unique issuers
+    df['Max.'] = df['Max.'].apply(parse_macedonian_price)
+    df['Min.'] = df['Min.'].apply(parse_macedonian_price)
+    df['Last Transaction Price'] = df['Last Transaction Price'].apply(parse_macedonian_price)
     issuers = df['Issuer Name'].unique()
-
 except Exception as e:
     df = pd.DataFrame()  # Fallback to an empty DataFrame
     issuers = []  # Default to an empty list if loading fails
@@ -48,134 +52,126 @@ def index():
 
 @app.route('/get_todays_data', methods=['GET'])
 def get_todays_data():
-    """Fetch today's stock data."""
+    """Fetch today's stock data or the last available stock data."""
     try:
-        # Reload the filtered data
         df = pd.read_csv(DATA_FILE, dtype={'Date': 'object'})
-
-        # Convert 'Date' column to datetime using the specific format
         df['Date'] = pd.to_datetime(df['Date'], format='%d.%m.%Y')
-
-        # Apply the custom price parsing again
         df['Average Price'] = df['Average Price'].apply(parse_macedonian_price)
 
-        # Get today's date
         today = datetime.datetime.now().date()
-
-        # Filter today's data
         todays_data = df[df['Date'].dt.date == today]
+
+        # If today's data is empty, find the last available date with data
+        if todays_data.empty:
+            last_available_date = df['Date'].max().date()
+            todays_data = df[df['Date'].dt.date == last_available_date]
 
         if todays_data.empty:
             return jsonify([])
 
-        # Return today's data as JSON
+        todays_data['Date'] = todays_data['Date'].apply(
+            lambda d: d.replace(hour=15, minute=0, second=0).strftime('%Y-%m-%d %H:%M:%S')
+        )
         return jsonify(todays_data.to_dict(orient='records'))
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/technicalAnalysis')
+@app.route('/technicalAnalysis', methods=['GET', 'POST'])
 def technical_analysis():
-    """Render the technical analysis page with issuers."""
-    return render_template('technicalAnalysis.html', issuers=issuers)
+    """Render and process technical analysis."""
+    if request.method == 'GET':
+        return render_template('technicalAnalysis.html', issuers=issuers)
 
-
-@app.route('/technicalAnalysis', methods=['POST'])
-def analyze():
-    """Analyze the selected issuer's stock data."""
     try:
-        # Get the selected issuer
         issuer = request.form.get('issuer')
-
-        # Check if the issuer is valid
         if issuer not in issuers:
-            return jsonify({'error': 'Invalid issuer selected'}), 400
+            return render_template('technicalAnalysis.html', issuers=issuers, error="Invalid issuer selected.")
 
-        # Filter the data for the selected issuer
         issuer_data = df[df['Issuer Name'] == issuer].sort_values(by='Date')
-
         if issuer_data.empty:
-            return jsonify({'error': 'No data available for the selected issuer'}), 400
+            return render_template('technicalAnalysis.html', issuers=issuers,
+                                   error="No data available for the selected issuer.")
 
-        # Ensure data is sorted by date for calculations
-        issuer_data = issuer_data.set_index('Date')
+        close_prices = issuer_data.set_index('Date')['Average Price']
 
-        # Check if 'Average Price' column exists
-        if 'Average Price' not in issuer_data.columns:
-            return jsonify({'error': "'Average Price' column is missing in the data"}), 400
-
-        # Calculate indicators
-        indicators = {}
-        close_prices = issuer_data['Average Price']
-
-        # 1. Simple Moving Average (SMA)
-        sma_20 = close_prices.rolling(window=20).mean().iloc[-1]
-        sma_50 = close_prices.rolling(window=50).mean().iloc[-1]
-
-        # 2. Exponential Moving Average (EMA)
-        ema_20 = close_prices.ewm(span=20, adjust=False).mean().iloc[-1]
-        ema_50 = close_prices.ewm(span=50, adjust=False).mean().iloc[-1]
-
-        # 3. Relative Strength Index (RSI)
-        rsi = momentum.rsi(close_prices, window=14).iloc[-1]
-
-        # 4. Moving Average Convergence Divergence (MACD)
-        macd = trend.macd(close_prices).iloc[-1]
-
-        # 5. Bollinger Bands (Upper and Lower)
-        rolling_std = close_prices.rolling(window=20).std().iloc[-1]
-        bollinger_upper = sma_20 + (rolling_std * 2)
-        bollinger_lower = sma_20 - (rolling_std * 2)
-
-        # Check for NaN values in any of the indicators
-        insufficient_data = {}
-        if pd.isna(sma_20):
-            insufficient_data['SMA_20'] = 'Insufficient data for SMA_20'
-        if pd.isna(sma_50):
-            insufficient_data['SMA_50'] = 'Insufficient data for SMA_50'
-        if pd.isna(ema_20):
-            insufficient_data['EMA_20'] = 'Insufficient data for EMA_20'
-        if pd.isna(ema_50):
-            insufficient_data['EMA_50'] = 'Insufficient data for EMA_50'
-        if pd.isna(rsi):
-            insufficient_data['RSI'] = 'Insufficient data for RSI'
-        if pd.isna(macd):
-            insufficient_data['MACD'] = 'Insufficient data for MACD'
-        if pd.isna(bollinger_upper) or pd.isna(bollinger_lower):
-            insufficient_data['Bollinger Bands'] = 'Insufficient data for Bollinger Bands'
-
-        # Bundle all the indicators into a dictionary
-        # Bundle all the indicators into a dictionary, replacing NaN with 'Insufficient Data'
         indicators = {
-            'SMA_20': round(sma_20, 2) if not pd.isna(sma_20) else "Insufficient Data",
-            'SMA_50': round(sma_50, 2) if not pd.isna(sma_50) else "Insufficient Data",
-            'EMA_20': round(ema_20, 2) if not pd.isna(ema_20) else "Insufficient Data",
-            'EMA_50': round(ema_50, 2) if not pd.isna(ema_50) else "Insufficient Data",
-            'RSI': round(rsi, 2) if not pd.isna(rsi) else "Insufficient Data",
-            'MACD': round(macd, 2) if not pd.isna(macd) else "Insufficient Data",
-            'Bollinger_Upper': round(bollinger_upper, 2) if not pd.isna(bollinger_upper) else "Insufficient Data",
-            'Bollinger_Lower': round(bollinger_lower, 2) if not pd.isna(bollinger_lower) else "Insufficient Data"
+            "SMA_20": close_prices.rolling(window=20).mean().iloc[-1] if len(close_prices) >= 20 else None,
+            "SMA_50": close_prices.rolling(window=50).mean().iloc[-1] if len(close_prices) >= 50 else None,
+            "EMA_20": close_prices.ewm(span=20, adjust=False).mean().iloc[-1] if len(close_prices) >= 20 else None,
+            "EMA_50": close_prices.ewm(span=50, adjust=False).mean().iloc[-1] if len(close_prices) >= 50 else None,
+            "RSI": momentum.rsi(close_prices, window=14).iloc[-1] if len(close_prices) >= 14 else None,
+            "MACD": trend.macd(close_prices).iloc[-1] if len(close_prices) >= 26 else None,
         }
+        rolling_std = close_prices.rolling(window=20).std().iloc[-1] if len(close_prices) >= 20 else None
+        if rolling_std is not None:
+            indicators["Bollinger_Upper"] = indicators["SMA_20"] + 2 * rolling_std
+            indicators["Bollinger_Lower"] = indicators["SMA_20"] - 2 * rolling_std
 
-        # If there is insufficient data, return an error message with the details
+        insufficient_data = {k: "Insufficient data" for k, v in indicators.items() if v is None}
         if insufficient_data:
-            missing_count = len(insufficient_data)
-            return render_template('technicalAnalysis.html',
-                                   indicators=indicators,
-                                   insufficient_data=insufficient_data,
-                                   issuer=issuer,
-                                   issuers=issuers,
-                                   missing_count=missing_count)
+            return render_template('technicalAnalysis.html', issuers=issuers, insufficient_data=insufficient_data,
+                                   issuer=issuer)
 
-        # Return the indicators and the selected issuer as a response
-        return render_template('technicalAnalysis.html',
-                               indicators=indicators,
-                               issuer=issuer,
-                               issuers=issuers)
+        return render_template('technicalAnalysis.html', issuers=issuers, indicators=indicators, issuer=issuer)
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+def plot_average_price_chart(issuer, df):
+    """Generate and return a base64-encoded line chart for the selected issuer's average price over time."""
+    issuer_data = df[df['Issuer Name'] == issuer].copy()
+
+    if issuer_data.empty:
+        return None
+
+    issuer_data.loc[:, 'Average Price'] = pd.to_numeric(issuer_data['Average Price'], errors='coerce')
+    issuer_data.dropna(subset=['Average Price'], inplace=True)
+
+    issuer_data = issuer_data[['Date', 'Average Price']]
+    issuer_data.set_index('Date', inplace=True)
+
+    # Generate the line chart for Average Price over time
+    plt.figure(figsize=(10, 6))
+    plt.plot(issuer_data.index, issuer_data['Average Price'], label=f'{issuer} Average Price', color='blue')
+
+    plt.title(f'{issuer} Average Price Over Time')
+    plt.xlabel('Date')
+    plt.ylabel('Average Price')
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.legend()
+
+    # Save the figure to an in-memory buffer
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    plt.close()
+
+    # Encode the buffer content to base64
+    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+
+    return img_base64
+
+
+@app.route('/graphs', methods=['GET', 'POST'])
+def show_graphs():
+    if request.method == 'POST':
+        issuer = request.form.get('issuer')
+
+        if issuer not in issuers:
+            return render_template('graphs.html', issuers=issuers, error="Invalid issuer selected.")
+
+        graph_base64 = plot_average_price_chart(issuer, df)
+
+        if graph_base64:
+            return render_template('graphs.html', issuers=issuers, graph_base64=graph_base64, selected_issuer=issuer)
+        else:
+            return render_template('graphs.html', issuers=issuers, error="No data available for the selected issuer.")
+
+    return render_template('graphs.html', issuers=issuers)
 
 
 if __name__ == '__main__':
