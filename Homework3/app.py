@@ -81,7 +81,6 @@ def technical_analysis():
     return render_template('technicalAnalysis.html', issuers=issuers)
 
 
-
 @app.route('/technicalAnalysis', methods=['POST'])
 def analyze():
     """Analyze the selected issuer's stock data."""
@@ -147,23 +146,27 @@ def analyze():
             insufficient_data['Bollinger Bands'] = 'Insufficient data for Bollinger Bands'
 
         # Bundle all the indicators into a dictionary
+        # Bundle all the indicators into a dictionary, replacing NaN with 'Insufficient Data'
         indicators = {
-            "SMA_20": sma_20,
-            "SMA_50": sma_50,
-            "EMA_20": ema_20,
-            "EMA_50": ema_50,
-            "RSI": rsi,
-            "MACD": macd,
-            "Bollinger_Upper": bollinger_upper,
-            "Bollinger_Lower": bollinger_lower
+            'SMA_20': round(sma_20, 2) if not pd.isna(sma_20) else "Insufficient Data",
+            'SMA_50': round(sma_50, 2) if not pd.isna(sma_50) else "Insufficient Data",
+            'EMA_20': round(ema_20, 2) if not pd.isna(ema_20) else "Insufficient Data",
+            'EMA_50': round(ema_50, 2) if not pd.isna(ema_50) else "Insufficient Data",
+            'RSI': round(rsi, 2) if not pd.isna(rsi) else "Insufficient Data",
+            'MACD': round(macd, 2) if not pd.isna(macd) else "Insufficient Data",
+            'Bollinger_Upper': round(bollinger_upper, 2) if not pd.isna(bollinger_upper) else "Insufficient Data",
+            'Bollinger_Lower': round(bollinger_lower, 2) if not pd.isna(bollinger_lower) else "Insufficient Data"
         }
 
         # If there is insufficient data, return an error message with the details
         if insufficient_data:
+            missing_count = len(insufficient_data)
             return render_template('technicalAnalysis.html',
+                                   indicators=indicators,
                                    insufficient_data=insufficient_data,
                                    issuer=issuer,
-                                   issuers=issuers)
+                                   issuers=issuers,
+                                   missing_count=missing_count)
 
         # Return the indicators and the selected issuer as a response
         return render_template('technicalAnalysis.html',

@@ -1,0 +1,202 @@
+/* General body and text styling */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0 auto;
+    width: 1080px;
+    padding: 0;
+    background-color: #f0f8ff;
+    color: #003366;
+    line-height: 1.6;
+}
+
+h1, h2, h3 {
+    color: #002147;
+    text-align: center;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+label {
+    font-weight: bold;
+    color: #003366;
+    margin-top: 5px;
+    margin-right: 10px;
+}
+
+select {
+    padding: 8px 12px;
+    border: 1px solid #00509e;
+    border-radius: 5px;
+    color: #003366;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+button[type="submit"], button {
+    background-color: #00509e;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button a{
+    color: white;
+    text-decoration: none;
+}
+
+button[type="submit"]:hover, button:hover {
+    background-color: #003f7d;
+}
+
+/* Popup styling */
+.popup {
+    position: fixed;
+    top: 5%;
+    left: 35%;
+    width: 30%;
+    height: 50%;
+    background-color: rgba(0, 0, 75, 0.4); /* Dimmed background */
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.popup-content {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 51, 0.2);
+    width: 50%;
+    height: 50%;
+    max-width: 500px;
+    min-width: 300px;
+    transition: width 0.3s ease;
+}
+
+/* Dynamically adjust size based on missing algorithms count */
+.popup-content[data-missing="1"] {
+    height: 40%; /* Smaller if one algorithm is missing */
+}
+
+.popup-content[data-missing="2"], .popup-content[data-missing="3"] {
+    height: 60%; /* Medium if 2 or 3 algorithms are missing */
+}
+
+.popup-content[data-missing="4"], .popup-content[data-missing="5"], .popup-content[data-missing="6"] {
+    height: 90%; /* Larger if 4 or more algorithms are missing */
+}
+
+.popup-content h3 {
+    color: #00509e;
+    margin-bottom: 15px;
+}
+
+.popup-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.popup-content ul li {
+    margin: 10px 0;
+    color: #003366;
+}
+
+.popup-content button {
+    background-color: #00509e;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 20px;
+}
+
+.popup-content button:hover {
+    background-color: #003f7d;
+}
+
+/* Paragraph styling */
+p {
+    margin: 10px 20px;
+    color: #003366;
+}
+
+p strong {
+    color: #00509e;
+}
+
+/* Section for explanations */
+div h3 {
+    margin-top: 30px;
+    text-align: center;
+}
+
+div {
+    margin: 20px auto;
+    max-width: 800px;
+    padding: 15px;
+    background-color: #e6f2ff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Results container and table styling */
+.results-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #e6f2ff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 16px;
+    text-align: left;
+}
+
+.results-table th, .results-table td {
+    border: 1px solid #00509e;
+    padding: 10px 15px;
+}
+
+.results-table th {
+    background-color: #00509e;
+    color: white;
+    text-align: center;
+}
+
+.results-table td {
+    color: #003366;
+    text-align: center;
+}
+
+.results-table tr:nth-child(even) {
+    background-color: #f0f8ff;
+}
+
+.results-table tr:hover {
+    background-color: #d0e7ff;
+}

@@ -4,103 +4,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Technical Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='technicalAnalysis.css') }}">
 </head>
 <body>
-    <h1>Technical Analysis for Stock</h1>
+<h1>Technical Analysis for Stock</h1>
 
-    {% if indicators %}
+{% if indicators %}
+<div class="results-container">
     <h2>Analysis Results for {{ issuer }}</h2>
-    <p><strong>SMA 20:</strong> {{ indicators['SMA_20'] }}</p>
-    <p><strong>SMA 50:</strong> {{ indicators['SMA_50'] }}</p>
-    <p><strong>EMA 20:</strong> {{ indicators['EMA_20'] }}</p>
-    <p><strong>EMA 50:</strong> {{ indicators['EMA_50'] }}</p>
-    <p><strong>RSI:</strong> {{ indicators['RSI'] }}</p>
-    <p><strong>MACD:</strong> {{ indicators['MACD'] }}</p>
-    <p><strong>Bollinger Upper:</strong> {{ indicators['Bollinger_Upper'] }}</p>
-    <p><strong>Bollinger Lower:</strong> {{ indicators['Bollinger_Lower'] }}</p>
-    {% endif %}
+    <table class="results-table">
+        <tr>
+            <th>Indicator</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>SMA 20</td>
+            <td>{{ indicators.get('SMA_20', 'Insufficient Data') }}</td>
+        </tr>
+        <tr>
+            <td>SMA 50</td>
+            <td>{{ indicators.get('SMA_50', 'Insufficient Data') }}</td>
+        </tr>
+        <tr>
+            <td>EMA 20</td>
+            <td>{{ indicators.get('EMA_20', 'Insufficient Data') }}</td>
+        </tr>
+        <tr>
+            <td>EMA 50</td>
+            <td>{{ indicators.get('EMA_50', 'Insufficient Data') }}</td>
+        </tr>
+        <tr>
+            <td>RSI</td>
+            <td>{{ indicators.get('RSI', 'Insufficient Data') }}</td>
+        </tr>
+        <tr>
+            <td>MACD</td>
+            <td>{{ indicators.get('MACD', 'Insufficient Data') }}</td>
+        </tr>
+        <tr>
+            <td>Bollinger Upper</td>
+            <td>{{ indicators.get('Bollinger_Upper', 'Insufficient Data') }}</td>
+        </tr>
+        <tr>
+            <td>Bollinger Lower</td>
+            <td>{{ indicators.get('Bollinger_Lower', 'Insufficient Data') }}</td>
+        </tr>
+    </table>
+</div>
+{% endif %}
 
-    <div>
-        <h3>Algorithm Explanations</h3>
-        <p><strong>SMA (Simple Moving Average):</strong> The SMA is the average of a set of values over a defined number of periods. It helps identify trends over a short period.</p>
-        <p><strong>EMA (Exponential Moving Average):</strong> The EMA gives more weight to recent prices, making it more responsive to recent price changes than the SMA.</p>
-        <p><strong>RSI (Relative Strength Index):</strong> The RSI is a momentum oscillator that measures the speed and change of price movements. It ranges from 0 to 100 and helps identify overbought or oversold conditions.</p>
-        <p><strong>MACD (Moving Average Convergence Divergence):</strong> The MACD is a trend-following momentum indicator that shows the relationship between two moving averages of a security’s price.</p>
-        <p><strong>Bollinger Bands:</strong> Bollinger Bands consist of a middle band (SMA), upper band (SMA + 2*standard deviation), and lower band (SMA - 2*standard deviation). They help identify volatility and overbought/oversold conditions.</p>
-    </div>
+<!-- Explanation section -->
+<div>
+    <h3>Algorithm Explanations</h3>
+    <p><strong>SMA (Simple Moving Average):</strong> The SMA is the average of a set of values over a defined number of
+        periods. It helps identify trends over a short period.</p>
+    <p><strong>EMA (Exponential Moving Average):</strong> The EMA gives more weight to recent prices, making it more
+        responsive to recent price changes than the SMA.</p>
+    <p><strong>RSI (Relative Strength Index):</strong> The RSI is a momentum oscillator that measures the speed and
+        change of price movements. It ranges from 0 to 100 and helps identify overbought or oversold conditions.</p>
+    <p><strong>MACD (Moving Average Convergence Divergence):</strong> The MACD is a trend-following momentum indicator
+        that shows the relationship between two moving averages of a security’s price.</p>
+    <p><strong>Bollinger Bands:</strong> Bollinger Bands consist of a middle band (SMA), upper band (SMA + 2*standard
+        deviation), and lower band (SMA - 2*standard deviation). They help identify volatility and overbought/oversold
+        conditions.</p>
+</div>
 
-    <form method="POST">
+<form method="POST">
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
         <label for="issuer">Choose an Issuer:</label>
         <select name="issuer" id="issuer">
             {% for issuer_name in issuers %}
-            <option value="{{ issuer_name }}" {% if issuer_name == issuer %} selected {% endif %}>{{ issuer_name }}</option>
+            <option value="{{ issuer_name }}" {% if issuer_name== issuer %} selected {% endif %}>{{ issuer_name }}
+            </option>
             {% endfor %}
         </select>
-        <button type="submit">Analyze</button>
-    </form>
+        <button type="submit" class="btn btn-primary">Analyze</button>
 
-    <br>
-
-
-    {% if insufficient_data %}
-    <div id="popup" class="popup">
-        <div class="popup-content">
-            <h3>Insufficient Data</h3>
-            <ul>
-                {% for algorithm, message in insufficient_data.items() %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-            <button onclick="closePopup()">Close</button>
-        </div>
+        <button>
+            <a href="{{ url_for('index') }}">Back</a>
+        </button>
     </div>
+</form>
 
-    <script>
-        // Show the popup if insufficient data is available
-        document.getElementById('popup').style.display = 'block';
+<br>
 
-        // Close the popup
-        function closePopup() {
-            document.getElementById('popup').style.display = 'none';
-        }
-    </script>
+{% if insufficient_data %}
+<div id="popup" class="popup">
+    <div class="popup-content" data-missing="{{ missing_count }}">
+        <h3>Insufficient Data</h3>
+        <ul>
+            {% for algorithm, message in insufficient_data.items() %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        <button onclick="closePopup()">Close</button>
+    </div>
+</div>
 
-    <style>
-        .popup {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
+<script>
+    // Display the popup if there is insufficient data
+    document.getElementById('popup').style.display = 'flex';
 
-        .popup-content {
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #2e8783;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-    </style>
-
+    function closePopup() {
+        document.getElementById('popup').style.display = 'none'; // Hide the popup
+    }
 </script>
 {% endif %}
-
-    <!-- Back Button -->
-    <a href="/technicalAnalysis"><button>Back</button></a>
 
 </body>
 </html>
