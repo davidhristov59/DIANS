@@ -7,113 +7,112 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='technicalAnalysis.css') }}">
 </head>
 <body>
-<h1>Technical Analysis for Stock</h1>
+<div class="container">
+    <header>
+        <h1>Техничка Анализа за Акција</h1>
+    </header>
 
-<form method="POST">
-    <div style="display: flex; gap: 10px; margin-top: 10px;">
-        <label for="issuer">Choose an Issuer:</label>
-        <select name="issuer" id="issuer">
-            {% for issuer_name in issuers %}
-            <option value="{{ issuer_name }}" {% if issuer_name== issuer %} selected {% endif %}>{{ issuer_name }}
-            </option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-primary">Analyze</button>
+    <section class="form-section">
+        <form method="POST">
+            <div class="form-group">
+                <label for="issuer">Избери издавач:</label>
+                <select name="issuer" id="issuer">
+                    {% for issuer_name in issuers %}
+                    <option value="{{ issuer_name }}" {% if issuer_name== issuer %} selected {% endif %}>
+                        {{ issuer_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-primary">Анализирај</button>
+                <a href="{{ url_for('index') }}" class="btn-secondary">Назад</a>
+            </div>
+        </form>
+    </section>
 
-        <button>
-            <a href="{{ url_for('index') }}">Back</a>
-        </button>
+    {% if indicators %}
+    <section class="results-section">
+        <h2>Резултати од анализата за {{ issuer }}</h2>
+        <table class="results-table">
+            <tr>
+                <th>Indicator</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td>SMA 20</td>
+                <td>{{ indicators.get('SMA_20', 'Insufficient Data') }}</td>
+            </tr>
+            <tr>
+                <td>SMA 50</td>
+                <td>{{ indicators.get('SMA_50', 'Insufficient Data') }}</td>
+            </tr>
+            <tr>
+                <td>EMA 20</td>
+                <td>{{ indicators.get('EMA_20', 'Insufficient Data') }}</td>
+            </tr>
+            <tr>
+                <td>EMA 50</td>
+                <td>{{ indicators.get('EMA_50', 'Insufficient Data') }}</td>
+            </tr>
+            <tr>
+                <td>RSI</td>
+                <td>{{ indicators.get('RSI', 'Insufficient Data') }}</td>
+            </tr>
+            <tr>
+                <td>MACD</td>
+                <td>{{ indicators.get('MACD', 'Insufficient Data') }}</td>
+            </tr>
+            <tr>
+                <td>Bollinger Upper</td>
+                <td>{{ indicators.get('Bollinger_Upper', 'Insufficient Data') }}</td>
+            </tr>
+            <tr>
+                <td>Bollinger Lower</td>
+                <td>{{ indicators.get('Bollinger_Lower', 'Insufficient Data') }}</td>
+            </tr>
+        </table>
+    </section>
+    {% endif %}
+
+    <div>
+        <h3>Algorithm Explanations</h3>
+        <p><strong>SMA (Simple Moving Average):</strong> SMA е просек од збир на вредности над дефиниран број на
+            периоди. Тоа помага да се идентификуваат трендовите за краток период</p>
+        <p><strong>EMA (Exponential Moving Average):</strong> ЕМА им дава поголема тежина на неодамнешните цени, што го
+            прави повеќе
+            одговара на неодамнешните промени на цените од SMA</p>
+        <p><strong>RSI (Relative Strength Index):</strong> RSI е осцилатор на импулсот кој ја мери брзината и
+            промена на движењата на цените. Се движи од 0 до 100 и помага да се идентификуваат условите за прекупување
+            или препродажба</p>
+        <p><strong>MACD (Moving Average Convergence Divergence):</strong> MACD е индикатор за моментум што го следи
+            трендот
+            што ја покажува врската помеѓу два подвижни просеци на цената на хартијата од вредност.</p>
+        <p><strong>Bollinger Bands:</strong> Болингер бендовите се состојат од средна лента (SMA), горна лента (SMA +
+            2*стандард
+            отстапување), и долен опсег (SMA - 2*стандардна девијација). Тие помагаат да се идентификува нестабилноста и
+            прекумерното купување/препродажба
+            услови.</p>
     </div>
-</form>
 
-{% if indicators %}
-<div class="results-container">
-    <h2>Analysis Results for {{ issuer }}</h2>
-    <table class="results-table">
-        <tr>
-            <th>Indicator</th>
-            <th>Value</th>
-        </tr>
-        <tr>
-            <td>SMA 20</td>
-            <td>{{ indicators.get('SMA_20', 'Insufficient Data') }}</td>
-        </tr>
-        <tr>
-            <td>SMA 50</td>
-            <td>{{ indicators.get('SMA_50', 'Insufficient Data') }}</td>
-        </tr>
-        <tr>
-            <td>EMA 20</td>
-            <td>{{ indicators.get('EMA_20', 'Insufficient Data') }}</td>
-        </tr>
-        <tr>
-            <td>EMA 50</td>
-            <td>{{ indicators.get('EMA_50', 'Insufficient Data') }}</td>
-        </tr>
-        <tr>
-            <td>RSI</td>
-            <td>{{ indicators.get('RSI', 'Insufficient Data') }}</td>
-        </tr>
-        <tr>
-            <td>MACD</td>
-            <td>{{ indicators.get('MACD', 'Insufficient Data') }}</td>
-        </tr>
-        <tr>
-            <td>Bollinger Upper</td>
-            <td>{{ indicators.get('Bollinger_Upper', 'Insufficient Data') }}</td>
-        </tr>
-        <tr>
-            <td>Bollinger Lower</td>
-            <td>{{ indicators.get('Bollinger_Lower', 'Insufficient Data') }}</td>
-        </tr>
-    </table>
-</div>
-{% endif %}
-
-<!-- Explanation section -->
-<div>
-    <h3>Algorithm Explanations</h3>
-    <p><strong>SMA (Simple Moving Average):</strong> SMA е просек од збир на вредности над дефиниран број на
-        периоди. Тоа помага да се идентификуваат трендовите за краток период</p>
-    <p><strong>EMA (Exponential Moving Average):</strong> ЕМА им дава поголема тежина на неодамнешните цени, што го прави повеќе
-        одговара на неодамнешните промени на цените од SMA</p>
-    <p><strong>RSI (Relative Strength Index):</strong> RSI е осцилатор на импулсот кој ја мери брзината и
-        промена на движењата на цените. Се движи од 0 до 100 и помага да се идентификуваат условите за прекупување или препродажба</p>
-    <p><strong>MACD (Moving Average Convergence Divergence):</strong> MACD е индикатор за моментум што го следи трендот
-        што ја покажува врската помеѓу два подвижни просеци на цената на хартијата од вредност.</p>
-    <p><strong>Bollinger Bands:</strong> Болингер бендовите се состојат од средна лента (SMA), горна лента (SMA + 2*стандард
-        отстапување), и долен опсег (SMA - 2*стандардна девијација). Тие помагаат да се идентификува нестабилноста и прекумерното купување/препродажба
-        услови.</p>
-</div>
-
-
-
-<br>
-
-{% if insufficient_data %}
-<div id="popup" class="popup">
-    <div class="popup-content" data-missing="{{ missing_count }}">
-        <h3>Insufficient Data</h3>
-        <ul>
-            {% for algorithm, message in insufficient_data.items() %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        <button onclick="closePopup()">Close</button>
+    {% if insufficient_data %}
+    <div id="popup" class="popup">
+        <div class="popup-content" data-missing="{{ missing_count }}">
+            <h3>Insufficient Data</h3>
+            <ul>
+                {% for algorithm, message in insufficient_data.items() %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            <button onclick="closePopup()">Close</button>
+        </div>
     </div>
+    <script>
+        document.getElementById('popup').style.display = 'flex';
+
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+    </script>
+    {% endif %}
 </div>
-
-<script>
-    // Display the popup if there is insufficient data
-    document.getElementById('popup').style.display = 'flex';
-
-    function closePopup() {
-        document.getElementById('popup').style.display = 'none'; // Hide the popup
-    }
-
-
-</script>
-{% endif %}
-
 </body>
 </html>

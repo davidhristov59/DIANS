@@ -142,7 +142,7 @@ def plot_average_price_chart(issuer, df):
         issuer_data.index, issuer_data['Average Price'],
         label=f'{issuer} Average Price', color='blue', linestyle='-', linewidth=2
     )
-    plt.title(f'{issuer} Average Price Over Time')
+    plt.title(f'{issuer} Просечна Цена Низ Времето')
     plt.xlabel('Date')
     plt.ylabel('Average Price')
     plt.xticks(rotation=45)

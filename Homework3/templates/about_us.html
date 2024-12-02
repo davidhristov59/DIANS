@@ -3,28 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='indexStyle.css') }}">
+    <title>За Нас</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='aboutUS.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
-<style>
-        .email-link {
-            color: black;
-            text-decoration: none;
-        }
-    </style>
 <body>
     <div class="about-container">
-        <h1>About Us</h1>
+        <h1>За Нас</h1>
         <p class="paragraph">
-            Ние сме тим од 3 студенти по софтверско инженерство @FCSE Скопје кои имаат за цел да направат иновативен проект фокусиран на предвидување на акции. Овој проект има за цел да користи напредни алгоритми и техники за анализа на податоци за да ги предвиди трендовите на берзата и да обезбеди вредни сознанија за инвеститорите. Со комбинирање на нашата експертиза за развој на софтвер, наука за податоци и финансиска анализа, развиваме робусна и прифатлива апликација која може да ги анализира историските податоци за акциите, да идентификува модели и да ги предвиди идните цени на акциите со висока точност        </p>
+            Ние сме тим од 3 студенти по софтверско инженерство и информациски системи при ФИНКИ - Скопје кои имаат за цел да направат иновативен проект фокусиран на предвидување на движењето на цените на акциите на Македонската Берза.
+            Овој проект има за цел да користи напредни алгоритми и техники за анализа на податоци за да ги предвиди трендовите на берзата и да обезбеди вредни сознанија за инвеститорите.
+        </p>
 
-        <h2>Contributors</h2>
+        <h2>Соработници</h2>
         <div class="contributors">
-            <!-- Contributor 1 -->
+            <!-- Contributor Cards -->
             <div class="card">
                 <img src="{{ url_for('static', filename='/images/stefan.jpeg') }}" alt="Contributor 1" class="profile-pic">
-                <h3>Stefan Tagarski</h3>
+                <h3>Стефан Тагарски</h3>
                 <p>
                     <a href="mailto:stefantagarski@gmail.com" class="email-link">stefantagarski@gmail.com</a>
                 </p>
@@ -35,14 +31,12 @@
                     <a href="https://www.linkedin.com/in/stefan-tagarski-942518265/" target="_blank" title="LinkedIn">
                         <i class="fab fa-linkedin"></i>
                     </a>
-
                 </div>
             </div>
 
-            <!-- Contributor 2 -->
             <div class="card">
                 <img src="{{ url_for('static', filename='/images/david.jpeg') }}" alt="Contributor 2" class="profile-pic">
-                <h3>David Hristov</h3>
+                <h3>Давид Христов</h3>
                 <p>
                     <a href="mailto:davidhristov10@gmail.com" class="email-link">davidhristov10@gmail.com</a>
                 </p>
@@ -53,16 +47,14 @@
                     <a href="https://www.linkedin.com/in/david-hristov-0985a4176/" target="_blank" title="LinkedIn">
                         <i class="fab fa-linkedin"></i>
                     </a>
-
                 </div>
             </div>
 
-            <!-- Contributor 3 -->
             <div class="card">
                 <img src="{{ url_for('static', filename='/images/nikola.jpeg') }}" alt="Contributor 3" class="profile-pic">
-                <h3>Nikola Dulev</h3>
+                <h3>Никола Дулев</h3>
                 <p>
-                    <a href="mailto:nikoladulev13@gmail.com" class="email-link"> nikoladulev13@gmail.com</a>
+                    <a href="mailto:nikoladulev13@gmail.com" class="email-link">nikoladulev13@gmail.com</a>
                 </p>
                 <div class="social-links">
                     <a href="https://github.com/dulev23" target="_blank" title="GitHub">
@@ -71,14 +63,17 @@
                     <a href="https://www.linkedin.com/in/nikola-dulev/" target="_blank" title="LinkedIn">
                         <i class="fab fa-linkedin"></i>
                     </a>
-
                 </div>
             </div>
-
         </div>
     </div>
 
-    <button class="back-button" onclick="history.back()">Back</button>
+    <div style="margin: 20px">
+         <button class="back-button" onclick="history.back()">Back</button>
+    </div>
 
+    <footer>
+        &copy; 2024 Дизајн и Архитектура на Софтвер
+    </footer>
 </body>
 </html>
