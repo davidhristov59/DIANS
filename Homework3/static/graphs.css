@@ -1,63 +1,105 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-}
-
-h1 {
-    text-align: center;
     color: #333;
-    margin-top: 20px;
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
+header {
+    background-color: #2e8783;
 }
 
-label {
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-select, button {
+header .navbar-brand {
+    color: #fff;
+    font-weight: 500;
+    font-size: 1.5rem;
     padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
+    margin-left: 545px;
+}
+
+main {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 30px auto;
+    max-width: 800px;
+}
+
+.go-back-btn {
+    background-color: #2e8783;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
     border-radius: 5px;
-    font-size: 16px;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-button {
-    background-color: #00509e;
-    color: white;
-    cursor: pointer;
+.go-back-btn:hover {
+    background-color: darkslategrey;
+    transform: scale(1.05);
 }
 
-.go-back-btn{
-    background-color: #00509e;
-    color: white;
-    cursor: pointer;
-    margin-left: 140px;
+form label {
+    font-weight: 500;
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 8px;
 }
 
-button:hover {
-    background-color: #003f7d;
+form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+form button {
+    background-color: #2e8783;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+form button:hover {
+    background-color: darkslategrey;
+    transform: scale(1.05);
 }
 
 img {
-    display: block;
-    margin: 20px auto;
-    max-width: 80%;
-    border: 1px solid #ccc;
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.alert {
+    font-size: 1rem;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
     border-radius: 5px;
 }
 
-p {
+footer {
+    background-color: #2e8783;
+    color: #d9e6f2;
     text-align: center;
-    color: red;
-    font-weight: bold;
+    padding: 15px;
+}
+
+#backToMain {
+    background-color: darkslategrey;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.2s;
 }
