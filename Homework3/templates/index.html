@@ -3,28 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Prediction Application</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='indexStyle.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Roboto+Mono&display=swap"
           rel="stylesheet">
 </head>
 <body>
-<div class="title-container">
-    <h1>Stock Prediction Application</h1>
-</div>
 
-<nav>
-    <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/graphs" class="btn btn-primary">View Issuer Graphs</a>
-        <a href="/technicalAnalysis">Technical Analysis</a>
-        <a href="/about">About Us</a>
-    </div>
-</nav>
+<header>
+    <nav>
+
+            <h1>StockPred</h1>
+        <ul class="nav-links">
+            <li> <a href="/">Home</a></li>
+            <li> <a href="/graphs">View Issuer Graphs</a></li>
+            <li> <a href="/technicalAnalysis">Technical Analysis</a></li>
+            <li> <a href="/about">About Us</a></li>
+
+        </ul>
+
+    </nav>
+</header>
+
 
 <div class="container">
-    <h2 class="centered-heading">Today's Stock Exchanges</h2>
+    <h2 class="centered-heading">Today's Stock Exchange</h2>
     <button id="load-data-btn">Show Today's Data</button>
 
     <div id="loading-overlay">
@@ -36,20 +39,7 @@
     </div>
 
     <table id="stock-table">
-        <thead>
-        <tr>
-            <th>Issuer Name</th>
-            <th>Date</th>
-            <th>Last Transaction Price</th>
-            <th>Max.</th>
-            <th>Min.</th>
-            <th>Average Price</th>
-            <th>% Change</th>
-            <th>Quantity</th>
-            <th>Turnover in BEST in Denars</th>
-            <th>Total Turnover in Denars</th>
-        </tr>
-        </thead>
+        <thead></thead>
         <tbody></tbody>
     </table>
 </div>
@@ -71,9 +61,20 @@
                     $('#stock-table tbody').empty();
                 } else {
                     $('#no-data-alert').hide();
+                    let tableHead = $('#stock-table thead');
                     let tableBody = $('#stock-table tbody');
+                    tableHead.empty();
                     tableBody.empty();
 
+                    // Create table headers
+                    let headers = ['Issuer Name', 'Date', 'Last Transaction Price', 'Max.', 'Min.', 'Average Price', '% Change', 'Quantity', 'Turnover in BEST in Denars', 'Total Turnover in Denars'];
+                    let headerRow = $('<tr>');
+                    headers.forEach(header => {
+                        headerRow.append($('<th>').text(header));
+                    });
+                    tableHead.append(headerRow);
+
+                    // Populate the table with data from the backend
                     data.forEach(row => {
                         let tr = $('<tr>');
 
