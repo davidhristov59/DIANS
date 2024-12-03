@@ -96,7 +96,7 @@
     {% if insufficient_data %}
     <div id="popup" class="popup">
         <div class="popup-content" data-missing="{{ missing_count }}">
-            <h3>Insufficient Data</h3>
+            <h3>Недостаток на податоци</h3>
             <ul>
                 {% for algorithm, message in insufficient_data.items() %}
                 <li>{{ message }}</li>
