@@ -152,31 +152,31 @@ def analyze():
         # Check for NaN values in any of the indicators
         insufficient_data = {}
         if pd.isna(sma_20):
-            insufficient_data['SMA_20'] = 'Insufficient data for SMA_20'
+            insufficient_data['SMA_20'] = 'Недостаток на податоци за SMA_20'
         if pd.isna(sma_50):
-            insufficient_data['SMA_50'] = 'Insufficient data for SMA_50'
+            insufficient_data['SMA_50'] = 'Недостаток на податоци за SMA_50'
         if pd.isna(ema_20):
-            insufficient_data['EMA_20'] = 'Insufficient data for EMA_20'
+            insufficient_data['EMA_20'] = 'Недостаток на податоци за EMA_20'
         if pd.isna(ema_50):
-            insufficient_data['EMA_50'] = 'Insufficient data for EMA_50'
+            insufficient_data['EMA_50'] = 'Недостаток на податоци за EMA_50'
         if pd.isna(rsi):
-            insufficient_data['RSI'] = 'Insufficient data for RSI'
+            insufficient_data['RSI'] = 'Недостаток на податоци за RSI'
         if pd.isna(macd):
-            insufficient_data['MACD'] = 'Insufficient data for MACD'
+            insufficient_data['MACD'] = 'Недостаток на податоци за MACD'
         if pd.isna(bollinger_upper) or pd.isna(bollinger_lower):
-            insufficient_data['Bollinger Bands'] = 'Insufficient data for Bollinger Bands'
+            insufficient_data['Bollinger Bands'] = 'Недостаток на податоци за Bollinger Bands'
 
         # Bundle all the indicators into a dictionary
         # Bundle all the indicators into a dictionary, replacing NaN with 'Insufficient Data'
         indicators = {
-            'SMA_20': round(sma_20, 2) if not pd.isna(sma_20) else "Insufficient Data",
-            'SMA_50': round(sma_50, 2) if not pd.isna(sma_50) else "Insufficient Data",
-            'EMA_20': round(ema_20, 2) if not pd.isna(ema_20) else "Insufficient Data",
-            'EMA_50': round(ema_50, 2) if not pd.isna(ema_50) else "Insufficient Data",
-            'RSI': round(rsi, 2) if not pd.isna(rsi) else "Insufficient Data",
-            'MACD': round(macd, 2) if not pd.isna(macd) else "Insufficient Data",
-            'Bollinger_Upper': round(bollinger_upper, 2) if not pd.isna(bollinger_upper) else "Insufficient Data",
-            'Bollinger_Lower': round(bollinger_lower, 2) if not pd.isna(bollinger_lower) else "Insufficient Data"
+            'SMA_20': round(sma_20, 2) if not pd.isna(sma_20) else "Недостаток на податоци",
+            'SMA_50': round(sma_50, 2) if not pd.isna(sma_50) else "Недостаток на податоци",
+            'EMA_20': round(ema_20, 2) if not pd.isna(ema_20) else "Недостаток на податоци",
+            'EMA_50': round(ema_50, 2) if not pd.isna(ema_50) else "Недостаток на податоци",
+            'RSI': round(rsi, 2) if not pd.isna(rsi) else "Недостаток на податоци",
+            'MACD': round(macd, 2) if not pd.isna(macd) else "Недостаток на податоци",
+            'Bollinger_Upper': round(bollinger_upper, 2) if not pd.isna(bollinger_upper) else "Недостаток на податоци",
+            'Bollinger_Lower': round(bollinger_lower, 2) if not pd.isna(bollinger_lower) else "Недостаток на податоци"
         }
 
         # If there is insufficient data, return an error message with the details
