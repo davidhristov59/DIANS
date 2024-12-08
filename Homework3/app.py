@@ -166,8 +166,7 @@ def analyze():
         if pd.isna(bollinger_upper) or pd.isna(bollinger_lower):
             insufficient_data['Bollinger Bands'] = 'Недостаток на податоци за Bollinger Bands'
 
-        # Bundle all the indicators into a dictionary
-        # Bundle all the indicators into a dictionary, replacing NaN with 'Insufficient Data'
+    
         indicators = {
             'SMA_20': round(sma_20, 2) if not pd.isna(sma_20) else "Недостаток на податоци",
             'SMA_50': round(sma_50, 2) if not pd.isna(sma_50) else "Недостаток на податоци",
