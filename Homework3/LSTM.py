@@ -1,23 +1,18 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
+from keras.layers import LSTM, Dense, Dropout
+from keras.models import Sequential
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-from keras.models import Sequential
-from keras.layers import LSTM, Dense, Dropout
-import matplotlib.pyplot as plt
 
-# Load the stock data
 data = pd.read_csv('../Homework1/filtered_stock_data.csv')
 
-# Remove trailing ',00' and replace thousand separators and decimal commas
-data['Last Transaction Price'] = data['Last Transaction Price'].str.replace(r'\.00$', '', regex=True)  # Remove ',00'
-data['Last Transaction Price'] = data['Last Transaction Price'].str.replace('.', '', regex=False)  # Remove a thousand separator
-data['Last Transaction Price'] = data['Last Transaction Price'].str.replace(',', '.', regex=False)  # Convert decimal comma to period
+data['Last Transaction Price'] = data['Last Transaction Price'].str.replace(r'\.00', '', regex=True)
+data['Last Transaction Price'] = data['Last Transaction Price'].str.replace('.', '', regex=False)
+data['Last Transaction Price'] = data['Last Transaction Price'].str.replace(',', '.', regex=False)
 
-# Convert the 'Last Transaction Price' column to numeric
 data['Last Transaction Price'] = pd.to_numeric(data['Last Transaction Price'], errors='coerce')
 
-# Drop rows with NaN values in 'Last Transaction Price'
 data = data.dropna(subset=['Last Transaction Price'])
 
 # Parameters
@@ -27,33 +22,33 @@ min_epoch = 1
 max_epoch = 50
 
 # Scaling function
-def scale_data(data, feature):
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    scaled_data = scaler.fit_transform(data[feature].values.reshape(-1, 1))
-    return scaled_data, scaler
+def scale_data(Data, feature):
+    _scaler = MinMaxScaler(feature_range=(0, 1))
+    _scaled_data = _scaler.fit_transform(Data[feature].values.reshape(-1, 1))
+    return _scaled_data, _scaler
 
 # Function to create sequences for LSTM
-def create_sequences(data, time_steps):
-    X, y = [], []
-    for i in range(time_steps, len(data)):
-        X.append(data[i-time_steps:i])
-        y.append(data[i])
-    return np.array(X), np.array(y)
+def create_sequences(Data, Time_steps):
+    x, y = [], []
+    for i in range(Time_steps, len(Data)):
+        x.append(Data[i - Time_steps:i])
+        y.append(Data[i])
+    return np.array(x), np.array(y)
 
 # Function to predict for multiple future time steps
-def predict_multiple_steps(model, last_sequence, steps, scaler):
+def predict_multiple_steps(Model, _last_sequence, steps, Scaler):
     prediction_list = []
-    current_input = last_sequence
+    current_input = _last_sequence
 
     for _ in range(steps):
-        predicted_price = model.predict(current_input)
+        predicted_price = Model.predict(current_input)
         prediction_list.append(predicted_price[0][0])
 
         # Prepare the next input by appending the predicted price
         current_input = np.append(current_input[0][1:], predicted_price, axis=0).reshape(1, -1, 1)
 
     # Rescale back to original price scale
-    predictions_rescaled = scaler.inverse_transform(np.array(prediction_list).reshape(-1, 1))
+    predictions_rescaled = Scaler.inverse_transform(np.array(prediction_list).reshape(-1, 1))
     return predictions_rescaled
 
 # Store all predictions for all issuers in a list
@@ -114,7 +109,6 @@ for issuer in data['Issuer Name'].unique():
 # Convert the list of all predictions to a DataFrame
 predictions_df = pd.DataFrame(all_predictions)
 
-# Save the predictions to a TXT file
 with open('average_predictions_for_all_issuers.txt', 'w') as file:
     for index, row in predictions_df.iterrows():
         file.write(f"Issuer: {row['Issuer']}, Average Predicted Price: {row['Average Predicted Price']}\n")
