@@ -6,7 +6,9 @@ import pandas as pd
 import datetime
 
 from matplotlib import pyplot as plt
-from ta import momentum, trend
+from ta.momentum import RSIIndicator
+from ta.trend import MACD
+from ta.volatility import BollingerBands
 
 matplotlib.use('Agg')
 import io
@@ -25,7 +27,7 @@ if not os.path.exists(GRAPH_FOLDER):
 # Custom function to handle Macedonian number format (e.g., 2.440,00 -> 2440.00)
 def parse_macedonian_price(price_str):
     try:
-        # Remove thousand separator (.)
+        # Remove the thousand separator (.)
         price_str = price_str.replace('.', '')
         # Replace decimal separator (,) with dot (.)
         price_str = price_str.replace(',', '.')
@@ -96,106 +98,111 @@ def get_todays_data():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/technicalAnalysis')
+@app.route('/technicalAnalysis', methods=['GET', 'POST'])
 def technical_analysis():
-    """Render the technical analysis page with issuers."""
-    return render_template('technicalAnalysis.html', issuers=issuers)
+    """Render or analyze the technical analysis page with issuers."""
+    if request.method == 'GET':
+        # Render the technical analysis page with available issuers
+        return render_template('technicalAnalysis.html', issuers=issuers)
 
+    if request.method == 'POST':
+        # Handle the analysis request for a specific issuer
+        try:
+            issuer = request.form.get('issuer')
 
-@app.route('/technicalAnalysis', methods=['POST'])
-def analyze():
-    """Analyze the selected issuer's stock data."""
-    try:
-        # Get the selected issuer
-        issuer = request.form.get('issuer')
+            # Check if the issuer is valid
+            if issuer not in issuers:
+                return jsonify({'error': 'Invalid issuer selected'}), 400
 
-        # Check if the issuer is valid
-        if issuer not in issuers:
-            return jsonify({'error': 'Invalid issuer selected'}), 400
+            # Filter data for the selected issuer
+            issuer_data = df[df['Issuer Name'] == issuer].sort_values(by='Date')
 
-        # Filter the data for the selected issuer
-        issuer_data = df[df['Issuer Name'] == issuer].sort_values(by='Date')
+            if issuer_data.empty:
+                return jsonify({'error': 'No data available for the selected issuer'}), 400
 
-        if issuer_data.empty:
-            return jsonify({'error': 'No data available for the selected issuer'}), 400
+            # Ensure data is sorted by date
+            issuer_data['Date'] = pd.to_datetime(issuer_data['Date'], errors='coerce')
+            issuer_data = issuer_data.set_index('Date')
 
-        # Ensure data is sorted by date for calculations
-        issuer_data = issuer_data.set_index('Date')
+            # Check if 'Average Price' column exists
+            if 'Average Price' not in issuer_data.columns:
+                return jsonify({'error': "'Average Price' column is missing in the data"}), 400
 
-        # Check if 'Average Price' column exists
-        if 'Average Price' not in issuer_data.columns:
-            return jsonify({'error': "'Average Price' column is missing in the data"}), 400
+            issuer_data['Average Price'] = pd.to_numeric(issuer_data['Average Price'], errors='coerce')
+            issuer_data.dropna(subset=['Average Price'], inplace=True)
+            issuer_data.sort_index(inplace=True)
 
-        # Calculate indicators
-        indicators = {}
-        close_prices = issuer_data['Average Price']
+            # Calculate technical indicators
+            close_prices = issuer_data['Average Price']
 
-        # 1. Simple Moving Average (SMA)
-        sma_20 = close_prices.rolling(window=20).mean().iloc[-1]
-        sma_50 = close_prices.rolling(window=50).mean().iloc[-1]
+            # RSI
+            rsi_indicator = RSIIndicator(close=close_prices, window=14)
+            rsi = rsi_indicator.rsi()
 
-        # 2. Exponential Moving Average (EMA)
-        ema_20 = close_prices.ewm(span=20, adjust=False).mean().iloc[-1]
-        ema_50 = close_prices.ewm(span=50, adjust=False).mean().iloc[-1]
+            # MACD
+            macd_indicator = MACD(close=close_prices)
+            macd = macd_indicator.macd()
+            macd_signal = macd_indicator.macd_signal()
+            macd_diff = macd_indicator.macd_diff()
 
-        # 3. Relative Strength Index (RSI)
-        rsi = momentum.rsi(close_prices, window=14).iloc[-1]
+            # Bollinger Bands
+            bollinger = BollingerBands(close=close_prices, window=20, window_dev=2)
+            bollinger_upper = bollinger.bollinger_hband()
+            bollinger_lower = bollinger.bollinger_lband()
 
-        # 4. Moving Average Convergence Divergence (MACD)
-        macd = trend.macd(close_prices).iloc[-1]
+            # Simple and Exponential Moving Averages (SMA, EMA)
+            sma_20 = close_prices.rolling(window=20).mean()
+            sma_50 = close_prices.rolling(window=50).mean()
+            ema_20 = close_prices.ewm(span=20, adjust=False).mean()
+            ema_50 = close_prices.ewm(span=50, adjust=False).mean()
 
-        # 5. Bollinger Bands (Upper and Lower)
-        rolling_std = close_prices.rolling(window=20).std().iloc[-1]
-        bollinger_upper = sma_20 + (rolling_std * 2)
-        bollinger_lower = sma_20 - (rolling_std * 2)
+            # Plot the graph with indicators
+            plt.figure(figsize=(10, 6))
+            plt.plot(close_prices, label='Average Price', color='blue', linestyle='-', linewidth=2)
+            plt.plot(sma_20, label='SMA 20', linestyle='--', color='orange')
+            plt.plot(sma_50, label='SMA 50', linestyle='--', color='red')
+            plt.plot(ema_20, label='EMA 20', linestyle='-', color='green')
+            plt.plot(ema_50, label='EMA 50', linestyle='-', color='purple')
+            plt.plot(bollinger_upper, label='Bollinger Upper', linestyle=':', color='magenta')
+            plt.plot(bollinger_lower, label='Bollinger Lower', linestyle=':', color='cyan')
 
-        # Check for NaN values in any of the indicators
-        insufficient_data = {}
-        if pd.isna(sma_20):
-            insufficient_data['SMA_20'] = 'Недостаток на податоци за SMA_20'
-        if pd.isna(sma_50):
-            insufficient_data['SMA_50'] = 'Недостаток на податоци за SMA_50'
-        if pd.isna(ema_20):
-            insufficient_data['EMA_20'] = 'Недостаток на податоци за EMA_20'
-        if pd.isna(ema_50):
-            insufficient_data['EMA_50'] = 'Недостаток на податоци за EMA_50'
-        if pd.isna(rsi):
-            insufficient_data['RSI'] = 'Недостаток на податоци за RSI'
-        if pd.isna(macd):
-            insufficient_data['MACD'] = 'Недостаток на податоци за MACD'
-        if pd.isna(bollinger_upper) or pd.isna(bollinger_lower):
-            insufficient_data['Bollinger Bands'] = 'Недостаток на податоци за Bollinger Bands'
+            plt.title(f'Technical Analysis for {issuer}')
+            plt.xlabel('Date')
+            plt.ylabel('Price')
+            plt.xticks(rotation=45)
+            plt.grid(True)
+            plt.legend()
+            plt.tight_layout()
 
-    
-        indicators = {
-            'SMA_20': round(sma_20, 2) if not pd.isna(sma_20) else "Недостаток на податоци",
-            'SMA_50': round(sma_50, 2) if not pd.isna(sma_50) else "Недостаток на податоци",
-            'EMA_20': round(ema_20, 2) if not pd.isna(ema_20) else "Недостаток на податоци",
-            'EMA_50': round(ema_50, 2) if not pd.isna(ema_50) else "Недостаток на податоци",
-            'RSI': round(rsi, 2) if not pd.isna(rsi) else "Недостаток на податоци",
-            'MACD': round(macd, 2) if not pd.isna(macd) else "Недостаток на податоци",
-            'Bollinger_Upper': round(bollinger_upper, 2) if not pd.isna(bollinger_upper) else "Недостаток на податоци",
-            'Bollinger_Lower': round(bollinger_lower, 2) if not pd.isna(bollinger_lower) else "Недостаток на податоци"
-        }
+            # Save the graph as base64
+            img_io = io.BytesIO()
+            plt.savefig(img_io, format='png')
+            img_io.seek(0)
+            graph_base64 = base64.b64encode(img_io.getvalue()).decode('utf-8')
+            plt.close()
 
-        # If there is insufficient data, return an error message with the details
-        if insufficient_data:
-            missing_count = len(insufficient_data)
+            # Latest values for the indicators
+            indicators = {
+                'SMA_20': round(sma_20.iloc[-1], 2) if not pd.isna(sma_20.iloc[-1]) else "Недостаток на податоци",
+                'SMA_50': round(sma_50.iloc[-1], 2) if not pd.isna(sma_50.iloc[-1]) else "Недостаток на податоци",
+                'EMA_20': round(ema_20.iloc[-1], 2) if not pd.isna(ema_20.iloc[-1]) else "Недостаток на податоци",
+                'EMA_50': round(ema_50.iloc[-1], 2) if not pd.isna(ema_50.iloc[-1]) else "Недостаток на податоци",
+                'RSI': round(rsi.iloc[-1], 2) if not pd.isna(rsi.iloc[-1]) else "Недостаток на податоци",
+                'MACD': round(macd.iloc[-1], 2) if not pd.isna(macd.iloc[-1]) else "Недостаток на податоци",
+                'Bollinger_Upper': round(bollinger_upper.iloc[-1], 2) if not pd.isna(
+                    bollinger_upper.iloc[-1]) else "Недостаток на податоци",
+                'Bollinger_Lower': round(bollinger_lower.iloc[-1], 2) if not pd.isna(
+                    bollinger_lower.iloc[-1]) else "Недостаток на податоци",
+            }
+
             return render_template('technicalAnalysis.html',
                                    indicators=indicators,
-                                   insufficient_data=insufficient_data,
                                    issuer=issuer,
                                    issuers=issuers,
-                                   missing_count=missing_count)
+                                   graph_base64=graph_base64)
 
-        # Return the indicators and the selected issuer as a response
-        return render_template('technicalAnalysis.html',
-                               indicators=indicators,
-                               issuer=issuer,
-                               issuers=issuers)
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
 
 
 def plot_average_price_chart(issuer, df):
@@ -235,24 +242,6 @@ def plot_average_price_chart(issuer, df):
     img_base64 = base64.b64encode(buf.read()).decode('utf-8')
 
     return img_base64
-
-
-@app.route('/graphs', methods=['GET', 'POST'])
-def show_graphs():
-    if request.method == 'POST':
-        issuer = request.form.get('issuer')
-
-        if issuer not in issuers:
-            return render_template('graphs.html', issuers=issuers, error="Invalid issuer selected.")
-
-        graph_base64 = plot_average_price_chart(issuer, df)
-
-        if graph_base64:
-            return render_template('graphs.html', issuers=issuers, graph_base64=graph_base64, selected_issuer=issuer)
-        else:
-            return render_template('graphs.html', issuers=issuers, error="No data available for the selected issuer.")
-
-    return render_template('graphs.html', issuers=issuers)
 
 
 @app.route('/about')

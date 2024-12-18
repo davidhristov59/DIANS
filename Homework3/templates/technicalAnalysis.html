@@ -1,75 +1,85 @@
 {% extends "base.html" %}
 
-{% block title %}Техничка Анализа{% endblock %}
+{% block title %}Графикони{% endblock %}
 
 {% block content %}
-<h1 class="text-center mb-4">Техничка Анализа за Акција</h1>
+<h1 class="text-center mb-4">Техничка Анализа за {{ issuer }}</h1>
 
-<section class="form-section">
-    <form method="POST">
-        <div class="form-group">
-            <label for="issuer">Избери издавач:</label>
-            <select name="issuer" id="issuer" class="form-select">
-                {% for issuer_name in issuers %}
-                <option value="{{ issuer_name }}" {% if issuer_name == issuer %} selected {% endif %}>
-                    {{ issuer_name }}
-                </option>
-                {% endfor %}
-            </select>
-            <button type="submit" class="btn go-back-btn mt-3">Анализирај</button>
-            <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Назад</a>
-        </div>
-    </form>
-</section>
+<!-- Display form for selecting issuer -->
+<form method="POST" id="issuerForm" class="text-center">
+    <label for="issuer">Избери издавач:</label>
+    <select name="issuer" id="issuer">
+        {% for issuer_name in issuers %}
+        <option value="{{ issuer_name }}" {% if issuer_name == issuer %} selected {% endif %}>
+            {{ issuer_name }}
+        </option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-secondary">Генерирај Граф</button>
+</form>
 
-{% if indicators %}
-<section class="results-section mt-4">
-    <h2>Резултати од анализата за {{ issuer }}</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Индикатор</th>
-                <th>Вредност</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>SMA 20</td>
-                <td>{{ indicators.get('SMA_20', 'Insufficient Data') }}</td>
-            </tr>
-            <tr>
-                <td>SMA 50</td>
-                <td>{{ indicators.get('SMA_50', 'Insufficient Data') }}</td>
-            </tr>
-            <tr>
-                <td>EMA 20</td>
-                <td>{{ indicators.get('EMA_20', 'Insufficient Data') }}</td>
-            </tr>
-            <tr>
-                <td>EMA 50</td>
-                <td>{{ indicators.get('EMA_50', 'Insufficient Data') }}</td>
-            </tr>
-            <tr>
-                <td>RSI</td>
-                <td>{{ indicators.get('RSI', 'Insufficient Data') }}</td>
-            </tr>
-            <tr>
-                <td>MACD</td>
-                <td>{{ indicators.get('MACD', 'Insufficient Data') }}</td>
-            </tr>
-            <tr>
-                <td>Bollinger Upper</td>
-                <td>{{ indicators.get('Bollinger_Upper', 'Insufficient Data') }}</td>
-            </tr>
-            <tr>
-                <td>Bollinger Lower</td>
-                <td>{{ indicators.get('Bollinger_Lower', 'Insufficient Data') }}</td>
-            </tr>
-        </tbody>
-    </table>
-</section>
-{% endif %}
+<!-- Display graph and indicators table in a single row -->
+<div class="row mt-5">
+    <div class="col-md-6 text-center">
+        <!-- Display graph -->
+        {% if graph_base64 %}
+        <h2 class="mb-4">Графикон на индикаторите за {{ issuer }}</h2>
+        <img src="data:image/png;base64,{{ graph_base64 }}" alt="Technical Analysis Graph" class="img-fluid">
+        {% else %}
+        <p class="text-muted">Нема достапен графикон.</p>
+        {% endif %}
+    </div>
 
+    <div class="col-md-6">
+        <!-- Display indicators table -->
+        {% if indicators %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Индикатор</th>
+                    <th>Вредност</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>SMA 20</td>
+                    <td>{{ indicators.SMA_20 }}</td>
+                </tr>
+                <tr>
+                    <td>SMA 50</td>
+                    <td>{{ indicators.SMA_50 }}</td>
+                </tr>
+                <tr>
+                    <td>EMA 20</td>
+                    <td>{{ indicators.EMA_20 }}</td>
+                </tr>
+                <tr>
+                    <td>EMA 50</td>
+                    <td>{{ indicators.EMA_50 }}</td>
+                </tr>
+                <tr>
+                    <td>RSI</td>
+                    <td>{{ indicators.RSI }}</td>
+                </tr>
+                <tr>
+                    <td>MACD</td>
+                    <td>{{ indicators.MACD }}</td>
+                </tr>
+                <tr>
+                    <td>Горен Болингер Бенд</td>
+                    <td>{{ indicators.Bollinger_Upper }}</td>
+                </tr>
+                <tr>
+                    <td>Долен Болингер Бенд</td>
+                    <td>{{ indicators.Bollinger_Lower }}</td>
+                </tr>
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Section for Indicator Explanations -->
 <div class="mt-5">
     <h3>Објаснувања на Индикаторите:</h3>
     <p><strong>SMA (Simple Moving Average):</strong> SMA е просек од збир на вредности над дефиниран број на периоди.</p>
@@ -78,26 +88,4 @@
     <p><strong>MACD (Moving Average Convergence Divergence):</strong> MACD следи трендот и ја покажува врската помеѓу два подвижни просеци.</p>
     <p><strong>Bollinger Bands:</strong> Болингер бендовите се користат за предвидување на нестабилноста и прекумерното купување/препродажба.</p>
 </div>
-
-{% if insufficient_data %}
-<div id="popup" class="popup">
-    <div class="popup-content">
-        <h3>Недостаток на податоци</h3>
-        <ul>
-            {% for algorithm, message in insufficient_data.items() %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        <button onclick="closePopup()">Затвори</button>
-    </div>
-</div>
-{% endif %}
-
-<script>
-    document.getElementById('popup').style.display = 'flex';
-
-    function closePopup() {
-        document.getElementById('popup').style.display = 'none';
-    }
-</script>
 {% endblock %}
