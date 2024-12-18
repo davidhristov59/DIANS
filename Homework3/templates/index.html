@@ -1,62 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='indexStyle.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
-    <title>Предикција на Македонска Берза</title>
-</head>
-<body class="d-flex flex-column min-vh-100">
+{% extends "base.html" %}
 
-<header class="py-3">
-    <div class="container">
-        <nav class="navbar navbar-expand-lg">
-            <a class="navbar-brand" href="/">Предикција на Македонска Берза</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house"></i></a> </li>
-                    <li class="nav-item"><a class="nav-link" href="/graphs">Граф за Издавач</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/technicalAnalysis">Техничка Анализа</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/fundamentalAnalysis">Фундаментална Анализа</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/lstmPrediction">LSTM*</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/about"><i class="bi bi-people"></i></a></li>
-                </ul>
-            </div>
-        </nav>
-    </div>
-</header>
+{% block title %}Предикција на Македонска Берза{% endblock %}
 
-<main class="container my-5">
-    <div class="text-center mb-4">
-        <h2 class="fw-bold">Денешна Берза</h2>
-        <p class="text-muted">Прегледајте ги денешните податоци за Македонска Берза.</p>
-    </div>
-    <div class="d-flex justify-content-center">
-        <button id="load-data-btn" class="btn btn-lg">Прикажи Денешна Берза</button>
-    </div>
-    <div id="no-data-alert" class="alert alert-warning mt-4" style="display: none;">
-        Нема податоци за издавачи од денес.
-    </div>
-    <div class="table-responsive mt-4">
-        <table id="stock-table" class="table table-bordered table-hover text-center">
-            <thead></thead>
-            <tbody></tbody>
-        </table>
-    </div>
-</main>
-
-<footer class="mt-auto">
-    <div class="container">
-        <p class="mb-0">&copy; Дизајн и Архитектура на Софтвер 2024</p>
-    </div>
-</footer>
+{% block content %}
+<div class="text-center mb-4">
+    <h1 class="mb-4">Денешна Берза</h1>
+    <p class="text-muted">Прегледајте ги денешните податоци за Македонска Берза.</p>
+</div>
+<div class="d-flex justify-content-center">
+    <button id="load-data-btn" class="btn btn-lg">Прикажи Денешна Берза</button>
+</div>
+<div id="no-data-alert" class="alert alert-warning mt-4" style="display: none;">
+    Нема податоци за издавачи од денес.
+</div>
+<div class="table-responsive mt-4">
+    <table id="stock-table" class="table table-bordered table-hover text-center">
+        <thead></thead>
+        <tbody></tbody>
+    </table>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
@@ -109,6 +71,4 @@
         });
     });
 </script>
-
-</body>
-</html>
+{% endblock %}
