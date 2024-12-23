@@ -4,10 +4,11 @@ import matplotlib
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import datetime
+from datetime import timedelta
 
 from matplotlib import pyplot as plt
-from ta.momentum import RSIIndicator
-from ta.trend import MACD
+from ta.momentum import RSIIndicator, StochasticOscillator
+from ta.trend import MACD, CCIIndicator
 from ta.volatility import BollingerBands
 
 matplotlib.use('Agg')
@@ -102,8 +103,21 @@ def get_todays_data():
 def technical_analysis():
     """Render or analyze the technical analysis page with issuers."""
     if request.method == 'GET':
-        # Render the technical analysis page with available issuers
-        return render_template('technicalAnalysis.html', issuers=issuers)
+        # Initialize empty/default variables for GET request
+        predicted_prices = {}
+        indicators = {}
+        graph_base64 = None
+        issuer = None
+
+        # Render the technical analysis page without predictions (initial page load)
+        return render_template(
+            'technicalAnalysis.html',
+            issuers=issuers,
+            indicators=indicators,
+            issuer=issuer,
+            graph_base64=graph_base64,
+            predicted_prices=predicted_prices
+        )
 
     if request.method == 'POST':
         # Handle the analysis request for a specific issuer
@@ -156,7 +170,45 @@ def technical_analysis():
             ema_20 = close_prices.ewm(span=20, adjust=False).mean()
             ema_50 = close_prices.ewm(span=50, adjust=False).mean()
 
-            # Plot the graph with indicators
+            # Predict prices based on indicators
+            def predict_price(indicator, days_ahead):
+                last_value = indicator.iloc[-1]
+                return last_value * (1 + (days_ahead * 0.001))
+
+            predicted_prices = {
+                '1_day': {
+                    'SMA_20': predict_price(sma_20, 1),
+                    'SMA_50': predict_price(sma_50, 1),
+                    'EMA_20': predict_price(ema_20, 1),
+                    'EMA_50': predict_price(ema_50, 1),
+                    'RSI': predict_price(rsi, 1),
+                    'MACD': predict_price(macd, 1),
+                    'Bollinger_Upper': predict_price(bollinger_upper, 1),
+                    'Bollinger_Lower': predict_price(bollinger_lower, 1),
+                },
+                '1_week': {
+                    'SMA_20': predict_price(sma_20, 7),
+                    'SMA_50': predict_price(sma_50, 7),
+                    'EMA_20': predict_price(ema_20, 7),
+                    'EMA_50': predict_price(ema_50, 7),
+                    'RSI': predict_price(rsi, 7),
+                    'MACD': predict_price(macd, 7),
+                    'Bollinger_Upper': predict_price(bollinger_upper, 7),
+                    'Bollinger_Lower': predict_price(bollinger_lower, 7),
+                },
+                '1_month': {
+                    'SMA_20': predict_price(sma_20, 30),
+                    'SMA_50': predict_price(sma_50, 30),
+                    'EMA_20': predict_price(ema_20, 30),
+                    'EMA_50': predict_price(ema_50, 30),
+                    'RSI': predict_price(rsi, 30),
+                    'MACD': predict_price(macd, 30),
+                    'Bollinger_Upper': predict_price(bollinger_upper, 30),
+                    'Bollinger_Lower': predict_price(bollinger_lower, 30),
+                }
+            }
+
+            # Generate the graph
             plt.figure(figsize=(10, 6))
             plt.plot(close_prices, label='Average Price', color='blue', linestyle='-', linewidth=2)
             plt.plot(sma_20, label='SMA 20', linestyle='--', color='orange')
@@ -195,53 +247,17 @@ def technical_analysis():
                     bollinger_lower.iloc[-1]) else "Недостаток на податоци",
             }
 
+            # Render the template with all the data
             return render_template('technicalAnalysis.html',
                                    indicators=indicators,
                                    issuer=issuer,
                                    issuers=issuers,
-                                   graph_base64=graph_base64)
+                                   graph_base64=graph_base64,
+                                   predicted_prices=predicted_prices)
 
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-
-def plot_average_price_chart(issuer, df):
-    issuer_data = df[df['Issuer Name'] == issuer].copy()
-
-    if issuer_data.empty:
-        return None
-
-    issuer_data['Date'] = pd.to_datetime(issuer_data['Date'], errors='coerce')
-    issuer_data.loc[:, 'Average Price'] = pd.to_numeric(issuer_data['Average Price'], errors='coerce')
-
-    issuer_data.dropna(subset=['Date', 'Average Price'], inplace=True)
-
-    issuer_data.set_index('Date', inplace=True)
-    issuer_data.sort_index(inplace=True)
-
-    issuer_data['Average Price'] = issuer_data['Average Price'].interpolate()
-
-    # Generate the line chart
-    plt.figure(figsize=(10, 6))
-    plt.plot(
-        issuer_data.index, issuer_data['Average Price'],
-        label=f'{issuer} Average Price', color='blue', linestyle='-', linewidth=2
-    )
-    plt.title(f'{issuer} Просечна Цена Низ Времето')
-    plt.xlabel('Date')
-    plt.ylabel('Average Price')
-    plt.xticks(rotation=45)
-    plt.grid(True)
-    plt.legend()
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    plt.close()
-
-    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-
-    return img_base64
 
 
 @app.route('/about')
