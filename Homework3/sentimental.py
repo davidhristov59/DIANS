@@ -1,4 +1,5 @@
 import pdfplumber
+import csv
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 def extract_text_from_pdf(pdf_file_path):
@@ -43,42 +44,41 @@ def process_issuer(issuer_name):
 
         recommendation, predicted_price_change = make_stock_recommendation(sentiment_scores)
 
+        description = (
+            f"Sentiment Scores: {sentiment_scores}\n"
+            f"Predicted stock price will {predicted_price_change}.\n"
+            f"Recommendation: {recommendation} stocks."
+        )
+
         result = {
             "issuer": issuer_name,
-            "sentiment_scores": sentiment_scores,
-            "recommendation": recommendation,
-            "predicted_price_change": predicted_price_change
+            "description": description
         }
 
         return result
     else:
-        return None
+        return {
+            "issuer": issuer_name,
+            "description": "Error in processing or no text extracted."
+        }
 
 def analyze_all_issuers(issuers, output_file):
     print(f"Starting fundamental analysis for {len(issuers)} issuers...")
 
-    with open(output_file, 'w') as f:
-        f.write("Fundamental Analysis Results for All Issuers\n")
-        f.write("=" * 50 + "\n\n")
+    with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
+        csv_writer = csv.DictWriter(csvfile, fieldnames=["Issuer Name", "Description"])
+        csv_writer.writeheader()
 
         for issuer in issuers:
             result = process_issuer(issuer)
-            if result:
-                f.write(f"Issuer: {result['issuer']}\n")
-                f.write(f"Sentiment Scores: {result['sentiment_scores']}\n")
-                f.write(f"Predicted stock price will {result['predicted_price_change']}.\n")
-                f.write(f"Recommendation: {result['recommendation']} stocks.\n")
-                f.write("\n" + "-" * 50 + "\n\n")
-            else:
-                f.write(f"Issuer: {issuer} - Error in processing or no text extracted.\n")
-                f.write("\n" + "-" * 50 + "\n\n")
+            csv_writer.writerow({"Issuer Name": result['issuer'], "Description": result['description']})
 
     print(f"Results saved to {output_file}")
 
 def main():
-    issuers = ['ALK', 'CKB', 'GRNT', 'KMB', 'MPT', 'MSTIL', 'MTUR', 'REPL', 'STB','SBT', 'TEL', 'TTK', 'TNB', 'UNI', 'VITA']
+    issuers = ['ALK', 'CKB', 'GRNT', 'KMB', 'MPT', 'MSTIL', 'MTUR', 'REPL', 'STB', 'SBT', 'TEL', 'TTK', 'TNB', 'UNI', 'VITA']
 
-    output_file = 'all_issuers_analysis.txt'
+    output_file = 'all_issuers_analysis.csv'
 
     analyze_all_issuers(issuers, output_file)
 
