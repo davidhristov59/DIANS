@@ -1,24 +1,21 @@
 import pdfplumber
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-
-# Function to extract text from the PDF file
 def extract_text_from_pdf(pdf_file_path):
     text = ""
-    with pdfplumber.open(pdf_file_path) as pdf:
-        for page in pdf.pages:
-            text += page.extract_text()
+    try:
+        with pdfplumber.open(pdf_file_path) as pdf:
+            for page in pdf.pages:
+                text += page.extract_text()
+    except Exception as e:
+        print(f"Error reading {pdf_file_path}: {e}")
     return text
 
-
-# Function to perform sentiment analysis using VADER
 def perform_sentiment_analysis(text):
     analyzer = SentimentIntensityAnalyzer()
     sentiment_scores = analyzer.polarity_scores(text)
     return sentiment_scores
 
-
-# Function to make stock recommendation based on sentiment
 def make_stock_recommendation(sentiment_scores):
     compound_score = sentiment_scores['compound']
 
@@ -34,28 +31,56 @@ def make_stock_recommendation(sentiment_scores):
 
     return recommendation, predicted_price_change
 
+def process_issuer(issuer_name):
+    pdf_file_path = f'sentimentalAnalysis/{issuer_name}.pdf'
 
-# Main function
-def main():
-    # Path to the ALK.pdf file
-    pdf_file_path = 'sentimentalAnalysis/CKB.pdf'
-
-    # Step 1: Extract text from the PDF
-    print("Extracting text from PDF...")
+    print(f"Extracting text from {issuer_name}.pdf...")
     pdf_text = extract_text_from_pdf(pdf_file_path)
 
-    # Step 2: Perform sentiment analysis
-    print("Performing sentiment analysis...")
-    sentiment_scores = perform_sentiment_analysis(pdf_text)
-    print(f"Sentiment Scores: {sentiment_scores}")
+    if pdf_text:
+        print(f"Performing sentiment analysis for {issuer_name}...")
+        sentiment_scores = perform_sentiment_analysis(pdf_text)
 
-    # Step 3: Make stock recommendation
-    recommendation, predicted_price_change = make_stock_recommendation(sentiment_scores)
+        recommendation, predicted_price_change = make_stock_recommendation(sentiment_scores)
 
-    # Display results
-    print(f"Predicted stock price will {predicted_price_change}.")
-    print(f"Recommendation: {recommendation} stocks.")
+        result = {
+            "issuer": issuer_name,
+            "sentiment_scores": sentiment_scores,
+            "recommendation": recommendation,
+            "predicted_price_change": predicted_price_change
+        }
 
+        return result
+    else:
+        return None
+
+def analyze_all_issuers(issuers, output_file):
+    print(f"Starting fundamental analysis for {len(issuers)} issuers...")
+
+    with open(output_file, 'w') as f:
+        f.write("Fundamental Analysis Results for All Issuers\n")
+        f.write("=" * 50 + "\n\n")
+
+        for issuer in issuers:
+            result = process_issuer(issuer)
+            if result:
+                f.write(f"Issuer: {result['issuer']}\n")
+                f.write(f"Sentiment Scores: {result['sentiment_scores']}\n")
+                f.write(f"Predicted stock price will {result['predicted_price_change']}.\n")
+                f.write(f"Recommendation: {result['recommendation']} stocks.\n")
+                f.write("\n" + "-" * 50 + "\n\n")
+            else:
+                f.write(f"Issuer: {issuer} - Error in processing or no text extracted.\n")
+                f.write("\n" + "-" * 50 + "\n\n")
+
+    print(f"Results saved to {output_file}")
+
+def main():
+    issuers = ['ALK', 'CKB', 'GRNT', 'KMB', 'MPT', 'MSTIL', 'MTUR', 'REPL', 'STB','SBT', 'TEL', 'TTK', 'TNB', 'UNI', 'VITA']
+
+    output_file = 'all_issuers_analysis.txt'
+
+    analyze_all_issuers(issuers, output_file)
 
 if __name__ == '__main__':
     main()
