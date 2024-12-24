@@ -1,0 +1,108 @@
+Fundamental Analysis Results for All Issuers
+==================================================
+
+Issuer: ALK
+Sentiment Scores: {'neg': 0.0, 'neu': 0.996, 'pos': 0.004, 'compound': 0.765}
+Predicted stock price will increase.
+Recommendation: Buy stocks.
+
+--------------------------------------------------
+
+Issuer: CKB
+Sentiment Scores: {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
+Predicted stock price will remain stable.
+Recommendation: Hold stocks.
+
+--------------------------------------------------
+
+Issuer: GRNT
+Sentiment Scores: {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
+Predicted stock price will remain stable.
+Recommendation: Hold stocks.
+
+--------------------------------------------------
+
+Issuer: KMB
+Sentiment Scores: {'neg': 0.001, 'neu': 0.999, 'pos': 0.0, 'compound': -0.1027}
+Predicted stock price will decrease.
+Recommendation: Sell stocks.
+
+--------------------------------------------------
+
+Issuer: MPT
+Sentiment Scores: {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
+Predicted stock price will remain stable.
+Recommendation: Hold stocks.
+
+--------------------------------------------------
+
+Issuer: MSTIL
+Sentiment Scores: {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
+Predicted stock price will remain stable.
+Recommendation: Hold stocks.
+
+--------------------------------------------------
+
+Issuer: MTUR
+Sentiment Scores: {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
+Predicted stock price will remain stable.
+Recommendation: Hold stocks.
+
+--------------------------------------------------
+
+Issuer: REPL
+Sentiment Scores: {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
+Predicted stock price will remain stable.
+Recommendation: Hold stocks.
+
+--------------------------------------------------
+
+Issuer: STB
+Sentiment Scores: {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
+Predicted stock price will remain stable.
+Recommendation: Hold stocks.
+
+--------------------------------------------------
+
+Issuer: SBT
+Sentiment Scores: {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
+Predicted stock price will remain stable.
+Recommendation: Hold stocks.
+
+--------------------------------------------------
+
+Issuer: TEL
+Sentiment Scores: {'neg': 0.0, 'neu': 0.997, 'pos': 0.003, 'compound': 0.8625}
+Predicted stock price will increase.
+Recommendation: Buy stocks.
+
+--------------------------------------------------
+
+Issuer: TTK
+Sentiment Scores: {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
+Predicted stock price will remain stable.
+Recommendation: Hold stocks.
+
+--------------------------------------------------
+
+Issuer: TNB
+Sentiment Scores: {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
+Predicted stock price will remain stable.
+Recommendation: Hold stocks.
+
+--------------------------------------------------
+
+Issuer: UNI
+Sentiment Scores: {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
+Predicted stock price will remain stable.
+Recommendation: Hold stocks.
+
+--------------------------------------------------
+
+Issuer: VITA
+Sentiment Scores: {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
+Predicted stock price will remain stable.
+Recommendation: Hold stocks.
+
+--------------------------------------------------
+
