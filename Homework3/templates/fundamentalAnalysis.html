@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundamental Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        select, button {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .result {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Фундаментална анализа</h1>
+    <form method="POST">
+        <label for="issuer">Избери издавач:</label>
+        <select name="issuer" id="issuer" required>
+            <option value="" disabled selected>Избери...</option>
+            {% for issuer in issuers %}
+                <option value="{{ issuer }}" {% if issuer == selected_issuer %}selected{% endif %}>{{ issuer }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Покажи резултати</button>
+    </form>
+
+    {% if description %}
+        <div class="result">
+            <h2>Резултати за {{ selected_issuer }}</h2>
+            <p>{{ description }}</p>
+        </div>
+    {% endif %}
+
+
+<div>
+     <div class="container">
+        <h1>Сентиментална Анализа</h1>
+        <div class="section">
+            <h2>Што е сентиментална анализа и како да се толкуваат резултатите?</h2>
+            <p>
+                Сентименталната анализа претставува метод за автоматско анализирање на текст со цел да се открие
+                емоционалниот тон што го содржи. Оваа анализа го класифицира текстот како позитивен, неутрален или
+                негативен, врз основа на клучни зборови и контекст.
+            </p>
+            <p><strong>Пример за резултат:</strong></p>
+            <pre>
+                {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
+            </pre>
+            <p>
+                <strong>neg (негативно):</strong> 0.0 покажува дека нема негативни елементи во текстот. <br>
+                <strong>neu (неутрално):</strong> 1.0 укажува дека текстот е целосно неутрален, без изразени емоции. <br>
+                <strong>pos (позитивно):</strong> 0.0 значи дека нема позитивни елементи во текстот. <br>
+                <strong>compound (композитен резултат):</strong> 0.0 е вредност која ја претставува целокупната емоција.
+                Во овој случај, резултатот покажува дека текстот е целосно неутрален.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>За валидноста на податоците</h2>
+            <p>
+                Сите податоци користени за анализата на издавачите се валидни за периодот од
+                <strong>01.01.2022 до 30.09.2024</strong>.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>За избраните издавачи</h2>
+            <p>
+                Оваа анализа е направена за најчесто тргуваните издавачи според нашето мислење. Целта е да се даде
+                препорака која ќе помогне на корисниците да донесат информирани одлуки за купување, продавање или
+                задржување на акции.
+            </p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
