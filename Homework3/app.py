@@ -1,3 +1,4 @@
+import csv
 import os
 
 import matplotlib
@@ -259,6 +260,31 @@ def technical_analysis():
             return jsonify({'error': str(e)}), 500
 
 
+@app.route('/fundamentalAnalysis', methods=['GET', 'POST'])
+def fundamental_analysis():
+    issuers = ['ALK', 'CKB', 'GRNT', 'KMB', 'MPT', 'MSTIL', 'MTUR', 'REPL',
+               'STB', 'SBT', 'TEL', 'TTK', 'TNB', 'UNI', 'VITA', 'OKTA']
+
+    selected_issuer = None
+    description = None
+
+    if request.method == 'POST':
+        selected_issuer = request.form['issuer']
+        description = get_description_for_issuer(selected_issuer)
+
+    return render_template('fundamentalAnalysis.html', issuers=issuers, selected_issuer=selected_issuer, description=description)
+
+# Helper function to retrieve description for a specific issuer from the CSV file
+def get_description_for_issuer(issuer):
+    try:
+        with open('analysis_results.csv', mode='r', encoding='utf-8') as csvfile:
+            csv_reader = csv.DictReader(csvfile)
+            for row in csv_reader:
+                if row['Issuer Name'] == issuer:
+                    return row['Description']
+    except Exception as e:
+        print(f"Error reading analysis_results.csv: {e}")
+    return "Описот не е достапен."
 
 @app.route('/about')
 def about():
