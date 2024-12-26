@@ -1,135 +1,137 @@
 import numpy as np
 import pandas as pd
-from keras.layers import LSTM, Dense, Dropout
 from keras.models import Sequential
-from keras.callbacks import EarlyStopping
-from sklearn.model_selection import train_test_split
+from keras.layers import LSTM, Dense, Dropout, BatchNormalization
+from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 import logging
 
-# Set up logging for tracking performance
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+# Setup logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 
-# Load and preprocess the data
-data = pd.read_csv('filtered_stock_data_2024.csv')
-
-# Data cleaning
-data['Last Transaction Price'] = data['Last Transaction Price'].str.replace(r'\.00', '', regex=True)
-data['Last Transaction Price'] = data['Last Transaction Price'].str.replace('.', '', regex=False)
-data['Last Transaction Price'] = data['Last Transaction Price'].str.replace(',', '.', regex=False)
-data['Last Transaction Price'] = pd.to_numeric(data['Last Transaction Price'], errors='coerce')
-data = data.dropna(subset=['Last Transaction Price'])
+# Load and preprocess data
+# data = pd.read_csv("parsedNumbers_data_2024.csv")
+data = pd.read_csv("parsedNumbers_data_2022_24.csv")
 
 # Parameters
-time_steps = 60  # window size
-min_data_points = 60  # minimum number of data points to create sequences
-min_epoch = 10
-max_epoch = 50
-batch_size = 32
+TIME_STEPS = 60
+BATCH_SIZE = 32
+MIN_EPOCHS = 10
+MAX_EPOCHS = 50
+MIN_DATA_POINTS = 60
 
-# Scaling function
+
+# Helper functions
 def scale_data(data, feature):
+    """Scale data using MinMaxScaler."""
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaled_data = scaler.fit_transform(data[feature].values.reshape(-1, 1))
     return scaled_data, scaler
 
-# Create sequences for LSTM
+
 def create_sequences(data, time_steps):
-    x, y = [], []
+    """Generate sequences and labels for LSTM training."""
+    X, y = [], []
     for i in range(time_steps, len(data)):
-        x.append(data[i - time_steps:i])
+        X.append(data[i - time_steps:i])
         y.append(data[i])
-    return np.array(x), np.array(y)
+    return np.array(X), np.array(y)
 
-# Predict multiple future time steps
-def predict_multiple_steps(model, last_sequence, steps, scaler):
-    prediction_list = []
+
+def predict_future(model, last_sequence, steps, scaler):
+    """Predict future values using the trained model."""
+    predictions = []
     current_input = last_sequence
-
     for _ in range(steps):
-        predicted_price = model.predict(current_input)
-        prediction_list.append(predicted_price[0][0])
-        current_input = np.append(current_input[0][1:], predicted_price, axis=0).reshape(1, -1, 1)
+        pred = model.predict(current_input)
+        predictions.append(pred[0][0])
+        current_input = np.append(current_input[0][1:], pred, axis=0).reshape(1, -1, 1)
+    return scaler.inverse_transform(np.array(predictions).reshape(-1, 1))
 
-    predictions_rescaled = scaler.inverse_transform(np.array(prediction_list).reshape(-1, 1))
-    return predictions_rescaled
 
-# Store all predictions for all issuers
+# Initialize callbacks
+early_stopping = EarlyStopping(monitor="val_loss", patience=5, restore_best_weights=True)
+lr_scheduler = ReduceLROnPlateau(monitor="val_loss", factor=0.5, patience=3, min_lr=1e-5)
+
+# Processing for each issuer
+time_horizons = {
+    # "1 Week": 5,
+    # "1 Month": 22,
+    # "3 Months": 66
+
+    "6 Months": 132,
+    "9 Months": 198,
+    "1 Year": 264
+}
 all_predictions = []
 
-# Early stopping for efficient training
-early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+for issuer in data["Issuer Name"].unique():
+    issuer_data = data[data["Issuer Name"] == issuer].copy()
 
-# Time horizons for predictions
-time_horizons = {
-    '1 Week': 5,  # Assuming 5 trading days in a week
-    '1 Month': 22,  # Approximately 22 trading days in a month
-    '3 Months': 66,  # 3 * 22 trading days
-}
+    # Ensure data is sorted by the latest available date
+    issuer_data.sort_values(by="Date", ascending=True, inplace=True)
 
-# Issuer specific training and prediction
-for issuer in data['Issuer Name'].unique():
-    issuer_data = data[data['Issuer Name'] == issuer]
+    if len(issuer_data) < MIN_DATA_POINTS:
+        logging.warning(f"Skipping issuer {issuer}: insufficient data points ({len(issuer_data)}).")
+        continue
 
-    if len(issuer_data) >= min_data_points:
-        logging.info(f"Processing issuer: {issuer}, Data Points: {len(issuer_data)}")
+    logging.info(f"Processing issuer: {issuer} with {len(issuer_data)} data points.")
 
-        # Scale the 'Last Transaction Price'
-        scaled_data, scaler = scale_data(issuer_data, 'Last Transaction Price')
+    # Scale the feature
+    scaled_data, scaler = scale_data(issuer_data, "Last Transaction Price")
 
-        # Create sequences
-        X, y = create_sequences(scaled_data, time_steps)
+    # Create sequences
+    X, y = create_sequences(scaled_data, TIME_STEPS)
 
-        # Ensure that there are enough samples for splitting (at least 2 samples)
-        if len(X) > 1:
-            # Split data into training and validation sets (70% train, 30% validation)
-            X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.3, random_state=42)
+    # Split data into training and validation sets
+    split_index = int(0.8 * len(X))
+    X_train, X_val = X[:split_index], X[split_index:]
+    y_train, y_val = y[:split_index], y[split_index:]
 
-            # Design the LSTM model
-            model = Sequential()
-            model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], 1)))
-            model.add(Dropout(0.2))
-            model.add(LSTM(units=50, return_sequences=False))
-            model.add(Dropout(0.2))
-            model.add(Dense(units=1))
+    # Design LSTM model
+    model = Sequential([
+        LSTM(units=64, return_sequences=True, input_shape=(X_train.shape[1], 1)),
+        BatchNormalization(),
+        Dropout(0.3),
+        LSTM(units=64, return_sequences=False),
+        BatchNormalization(),
+        Dropout(0.3),
+        Dense(units=1)
+    ])
+    model.compile(optimizer="adam", loss="mean_squared_error")
 
-            model.compile(optimizer='adam', loss='mean_squared_error')
+    # Train the model
+    epochs = min(MAX_EPOCHS, max(MIN_EPOCHS, len(issuer_data) // TIME_STEPS))
+    model.fit(
+        X_train, y_train,
+        validation_data=(X_val, y_val),
+        epochs=epochs,
+        batch_size=BATCH_SIZE,
+        callbacks=[early_stopping, lr_scheduler]
+    )
 
-            # Dynamically adjust epochs based on data size
-            epochs = min(max_epoch, max(min_epoch, len(issuer_data) // time_steps))
-            logging.info(f"Training model for {issuer} with {epochs} epochs")
+    # Predict future time horizons
+    last_sequence = X_val[-1].reshape(1, -1, 1)
+    predictions = {"Issuer": issuer}
 
-            # Train the model with early stopping
-            model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size,
-                      validation_data=(X_val, y_val), callbacks=[early_stopping])
+    for horizon, steps in time_horizons.items():
+        pred_values = predict_future(model, last_sequence, steps, scaler)
+        predictions[horizon] = pred_values.mean()
 
-            # Predict future stock prices for each horizon
-            last_sequence = X_val[-1].reshape(1, -1, 1)
-            issuer_predictions = {'Issuer': issuer}
+    # Validate and log metrics
+    val_preds = model.predict(X_val)
+    mse = mean_squared_error(y_val, val_preds)
+    mae = mean_absolute_error(y_val, val_preds)
+    predictions["MSE"] = mse
+    predictions["MAE"] = mae
 
-            for horizon_name, steps in time_horizons.items():
-                logging.info(f"Predicting {horizon_name} for issuer: {issuer}")
-                predictions = predict_multiple_steps(model, last_sequence, steps, scaler)
-                avg_predicted_price = predictions.mean()
-                issuer_predictions[horizon_name] = avg_predicted_price
+    logging.info(f"Issuer {issuer} - MSE: {mse}, MAE: {mae}")
+    all_predictions.append(predictions)
 
-            # Log MSE for evaluation
-            val_predictions = model.predict(X_val)
-            mse = mean_squared_error(y_val, val_predictions)
-            logging.info(f'MSE for {issuer}: {mse}')
-            issuer_predictions['MSE'] = mse
-
-            # Store the result for this issuer
-            all_predictions.append(issuer_predictions)
-        else:
-            logging.info(f"Skipping {issuer} due to insufficient sequences for training/validation.")
-    else:
-        logging.info(f"Skipping {issuer} due to insufficient data points (< {min_data_points}).")
-
-# Convert all predictions to a DataFrame
+# Save predictions to CSV
 predictions_df = pd.DataFrame(all_predictions)
-
-# Save results to file
-predictions_df.to_csv('predictions1Year.csv', index=False)
-logging.info("Predictions saved to 'predictions1Year.csv'.")
+# predictions_df.to_csv("optimized_predictions.csv", index=False)
+# logging.info("Predictions saved to 'optimized_predictions.csv'.")
+predictions_df.to_csv("optimized_predictions_22-24.csv", index=False)
+logging.info("Predictions saved to 'optimized_predictions_22-24.csv'.")
