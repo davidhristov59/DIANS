@@ -3,88 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fundamental Analysis</title>
+    <title>Фундаментална анализа</title>
     <style>
+        /* Your existing styles remain unchanged */
+        :root {
+            --primary-color: #2c3e50;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #596775;
+            --buy-color: #28a745;
+            --sell-color: #dc3545;
+            --hold-color: #ffc107;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
         }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .card {
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
         select, button {
-            margin: 10px 0;
-            padding: 10px;
-            font-size: 16px;
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 2px solid #dde1e7;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
         }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #34495e;
+        }
+
         .result {
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            padding: 20px;
-            background-color: #f9f9f9;
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-top: 2rem;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .recommendation-text {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            display: inline-block;
+            text-align: center;
+            width: 100%;
+            text-transform: uppercase;
+        }
+
+        .recommendation-text.buy {
+            color: #ffffff;
+            background-color: #28a745;
+        }
+
+        .recommendation-text.sell {
+            color: #ffffff;
+            background-color: #dc3545;
+        }
+
+        .recommendation-text.hold {
+            color: #ffffff;
+            background-color: #ffc107;
+        }
+
+        .recommendation-text::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .recommendation-text:hover::after {
+            opacity: 1;
+        }
+
+        #loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        #loading p {
+            margin-left: 1rem;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        #spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Фундаментална анализа</h1>
-    <form method="POST">
-        <label for="issuer">Избери издавач:</label>
-        <select name="issuer" id="issuer" required>
-            <option value="" disabled selected>Избери...</option>
-            {% for issuer in issuers %}
-                <option value="{{ issuer }}" {% if issuer == selected_issuer %}selected{% endif %}>{{ issuer }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit">Покажи резултати</button>
-    </form>
 
-    {% if description %}
-        <div class="result">
-            <h2>Резултати за {{ selected_issuer }}</h2>
-            <p>{{ description }}</p>
+
+    <div class="container">
+        <h1>Фундаментална анализа</h1>
+
+        <div class="card">
+            <form method="POST">
+                <label for="issuer">Избери издавач:</label>
+                <select name="issuer" id="issuer" required>
+                    <option value="" disabled selected>Избери...</option>
+                    {% for issuer in issuers %}
+                        <option value="{{ issuer }}" {% if issuer == selected_issuer %}selected{% endif %}>{{ issuer }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-submit">Покажи резултати</button>
+            </form>
+
+            {% if description %}
+            <div class="result">
+                <h2>Резултати за {{ selected_issuer }}</h2>
+                <p>{{ description }}</p>
+                <div>
+                    {% if issuer == "Hold" %}
+                        <span class="recommendation-text hold" data-tooltip="Држете акциите за сега">Препорака: Задржи акции</span>
+                    {% elif issuer == "Buy" %}
+                        <span class="recommendation-text buy" data-tooltip="Купете акциите">Препорака: Купи акции</span>
+                    {% elif issuer == "Sell" %}
+                        <span class="recommendation-text sell" data-tooltip="Продадете ги акциите">Препорака: Продади акции</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
         </div>
-    {% endif %}
 
+        <div id="loading" style="display: none;">
+            <div id="spinner"></div>
+            <p>Податоците се вчитуваат, ве молиме почекајте...</p>
+        </div>
 
-<div>
-     <div class="container">
-        <h1>Сентиментална Анализа</h1>
-        <div class="section">
+        <div class="card">
             <h2>Што е сентиментална анализа и како да се толкуваат резултатите?</h2>
             <p>
                 Сентименталната анализа претставува метод за автоматско анализирање на текст со цел да се открие
                 емоционалниот тон што го содржи. Оваа анализа го класифицира текстот како позитивен, неутрален или
                 негативен, врз основа на клучни зборови и контекст.
             </p>
-            <p><strong>Пример за резултат:</strong></p>
-            <pre>
-                {'neg': 0.0, 'neu': 1.0, 'pos': 0.0, 'compound': 0.0}
-            </pre>
-            <p>
-                <strong>neg (негативно):</strong> 0.0 покажува дека нема негативни елементи во текстот. <br>
-                <strong>neu (неутрално):</strong> 1.0 укажува дека текстот е целосно неутрален, без изразени емоции. <br>
-                <strong>pos (позитивно):</strong> 0.0 значи дека нема позитивни елементи во текстот. <br>
-                <strong>compound (композитен резултат):</strong> 0.0 е вредност која ја претставува целокупната емоција.
-                Во овој случај, резултатот покажува дека текстот е целосно неутрален.
-            </p>
         </div>
 
-        <div class="section">
+        <div class="card">
             <h2>За валидноста на податоците</h2>
             <p>
-                Сите податоци користени за анализата на издавачите се валидни за периодот од
-                <strong>01.01.2022 до 30.09.2024</strong>.
-            </p>
-        </div>
-
-        <div class="section">
-            <h2>За избраните издавачи</h2>
-            <p>
-                Оваа анализа е направена за најчесто тргуваните издавачи според нашето мислење. Целта е да се даде
-                препорака која ќе помогне на корисниците да донесат информирани одлуки за купување, продавање или
-                задржување на акции.
+                Сите податоци користени за анализата на издавачите се валидни за периодот:
+                <span class="validation-period">01.01.2022 до 30.09.2024</span>
             </p>
         </div>
     </div>
-</div>
 
+    <script>
+        const form = document.querySelector("form");
+        const loading = document.getElementById("loading");
+        form.addEventListener("submit", () => {
+            loading.style.display = "flex";
+        });
+    </script>
 </body>
 </html>

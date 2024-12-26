@@ -265,14 +265,14 @@ def fundamental_analysis():
     issuers = ['ALK', 'CKB', 'GRNT', 'KMB', 'MPT', 'MSTIL', 'MTUR', 'REPL',
                'STB', 'SBT', 'TEL', 'TTK', 'TNB', 'UNI', 'VITA', 'OKTA']
 
-    selected_issuer = None
+    issuer = None
     description = None
 
     if request.method == 'POST':
-        selected_issuer = request.form['issuer']
-        description = get_description_for_issuer(selected_issuer)
+        issuer = request.form['issuer']
+        description = get_description_for_issuer(issuer)
 
-    return render_template('fundamentalAnalysis.html', issuers=issuers, selected_issuer=selected_issuer, description=description)
+    return render_template('fundamentalAnalysis.html', issuers=issuers, selected_issuer=issuer, description=description)
 
 # Helper function to retrieve description for a specific issuer from the CSV file
 def get_description_for_issuer(issuer):
