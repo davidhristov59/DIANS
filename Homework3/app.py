@@ -267,14 +267,19 @@ def fundamental_analysis():
 
     issuer = None
     description = None
+    missing_issuer = False  #flag
 
     if request.method == 'POST':
-        issuer = request.form['issuer']
-        description = get_description_for_issuer(issuer)
+        issuer = request.form.get('issuer')
 
-    return render_template('fundamentalAnalysis.html', issuers=issuers, selected_issuer=issuer, description=description)
+        if not issuer:
+            missing_issuer = True
+        else:
+            description = get_description_for_issuer(issuer)
 
-# Helper function to retrieve description for a specific issuer from the CSV file
+    return render_template('fundamentalAnalysis.html', issuers=issuers, selected_issuer=issuer, description=description, missing_issuer=missing_issuer)
+
+
 def get_description_for_issuer(issuer):
     try:
         with open('analysis_results.csv', mode='r', encoding='utf-8') as csvfile:
@@ -285,6 +290,7 @@ def get_description_for_issuer(issuer):
     except Exception as e:
         print(f"Error reading analysis_results.csv: {e}")
     return "Описот не е достапен."
+
 
 @app.route('/about')
 def about():

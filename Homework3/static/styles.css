@@ -1,13 +1,80 @@
 /* General Styles */
+/* Global Styles */
 body {
-    font-family: 'Poppins', sans-serif;
-    background-color: grey;
-    color: #333;
-    margin: 0;
-    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
-    font-weight: 400;
-    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hero Section Styling */
+h1.display-4 {
+    font-weight: 600;
+    color: #2e8783; /* Custom green for titles */
+}
+
+/* Card Customization */
+.card {
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Title Customization */
+.card-title {
+    color: #2e8783; /* Custom color for titles */
+    font-weight: 600;
+}
+
+/* Card Text Styling */
+.card-text {
+    font-size: 1.1rem;
+    color: #555; /* Darker color for text inside cards */
+}
+
+/* Sentiment Analysis Card */
+.card-body {
+    padding: 2rem;
+}
+
+/* Adding Space Between Cards */
+.card.mb-4 {
+    margin-bottom: 3rem;
+}
+
+/* Badge Styling */
+.badge {
+    font-weight: bold;
+    padding: 8px 15px;
+}
+
+/* Button Customization */
+.btn-lg {
+    padding: 15px 30px;
+    font-size: 1.25rem;
+    border-radius: 30px;
+}
+
+/* Issuer Dropdown */
+.form-select-lg {
+    font-size: 1.1rem;
+}
+
+/* Form Customization */
+form {
+    background-color: #f9f9f9;
+    border-radius: 15px;
+}
+
+/* Custom Text Styling for Sections */
+.fs-5 {
+    font-size: 1.2rem;
+}
+
+.text-muted {
+    color: #6c757d;
+}
+
+.text-primary {
+    color: #2e8783;
 }
 
 header {
