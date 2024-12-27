@@ -11,8 +11,8 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 
 # Load and preprocess data
-# data = pd.read_csv("parsedNumbers_data_2024.csv")
-data = pd.read_csv("parsedNumbers_data_2022_24.csv")
+# data = pd.read_csv("parsingScripts/parsedNumbers_data_2024.csv")
+data = pd.read_csv("parsingScripts/parsedNumbers_data_2022_24.csv")
 
 # Parameters
 TIME_STEPS = 60

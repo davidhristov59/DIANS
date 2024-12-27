@@ -267,7 +267,7 @@ def fundamental_analysis():
 
     issuer = None
     description = None
-    missing_issuer = False  #flag
+    missing_issuer = False  # flag
 
     if request.method == 'POST':
         issuer = request.form.get('issuer')
@@ -277,7 +277,8 @@ def fundamental_analysis():
         else:
             description = get_description_for_issuer(issuer)
 
-    return render_template('fundamentalAnalysis.html', issuers=issuers, selected_issuer=issuer, description=description, missing_issuer=missing_issuer)
+    return render_template('fundamentalAnalysis.html', issuers=issuers, selected_issuer=issuer, description=description,
+                           missing_issuer=missing_issuer)
 
 
 def get_description_for_issuer(issuer):
@@ -290,6 +291,111 @@ def get_description_for_issuer(issuer):
     except Exception as e:
         print(f"Error reading analysis_results.csv: {e}")
     return "Описот не е достапен."
+
+
+def get_short_term_predictions(csv_file):
+    df = pd.read_csv(csv_file)
+    predictions = []
+
+    # Debugging: Check if the CSV is read correctly
+    print("Short-term prediction data loaded from CSV:", df)
+
+    for index, row in df.iterrows():
+        predictions.append({
+            'Issuer': row['Issuer'],
+            '1 Week': row['1 Week'],
+            '1 Month': row['1 Month'],
+            '3 Months': row['3 Months']
+        })
+
+    return predictions
+
+# Function to create the graph for predictions
+def create_graph(issuer, prices, prediction_type):
+    # Create a figure and axis
+    fig, ax = plt.subplots()
+
+    # Labels for the x-axis (time frames)
+    if prediction_type == 'short-term':
+        time_frames = ['1 Week', '1 Month', '3 Months']
+    else:
+        time_frames = ['6 Months', '9 Months', '1 Year']
+
+    # Plot the prices for the given issuer
+    ax.plot(time_frames, prices, marker='o', linestyle='-', color='b')
+
+    # Set title and labels
+    ax.set_title(f"{issuer} Price Predictions ({prediction_type.capitalize()})")
+    ax.set_xlabel("Time Period")
+    ax.set_ylabel("Price")
+
+    # Save the plot to a BytesIO object and encode it as Base64
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
+
+    # Close the plot to avoid memory leakage
+    plt.close(fig)
+
+    return img_base64
+
+# Function to get medium-term predictions
+def get_medium_term_predictions(csv_file):
+    df = pd.read_csv(csv_file)
+    predictions = []
+
+    for index, row in df.iterrows():
+        predictions.append({
+            'Issuer': row['Issuer'],
+            '6 Months': row['6 Months'],
+            '9 Months': row['9 Months'],
+            '1 Year': row['1 Year']
+        })
+
+    return predictions
+
+# Route for LSTM prediction page
+@app.route('/lstmPrediction', methods=['GET', 'POST'])
+def lstm_prediction():
+    issuers = ['ALK', 'GRNT', 'KMB', 'MPT', 'MTUR', 'OKTA', 'REPL', 'SBT', 'STB',
+               'STIL', 'TEL', 'TNB', 'TTK', 'UNI']
+
+    selected_issuer = None
+    prediction = None
+    missing_issuer = False
+    prediction_type = 'short-term'  # Default to 'short-term'
+
+    if request.method == 'POST':
+        selected_issuer = request.form.get('issuer')
+        prediction_type = request.form.get('prediction_type')  # Get the selected prediction type
+
+        if not selected_issuer:
+            missing_issuer = True
+        else:
+            if prediction_type == 'short-term':
+                # Get short-term predictions
+                predictions = get_short_term_predictions('optimized_predictions.csv')
+                filtered_predictions = [p for p in predictions if p['Issuer'] == selected_issuer]
+
+                if filtered_predictions:
+                    prediction = filtered_predictions[0]
+                    prices = [prediction['1 Week'], prediction['1 Month'], prediction['3 Months']]
+                    prediction['graph'] = create_graph(selected_issuer, prices, 'short-term')
+
+            elif prediction_type == 'medium-term':
+                predictions = get_medium_term_predictions('optimized_predictions_22-24.csv')
+                filtered_predictions = [p for p in predictions if p['Issuer'] == selected_issuer]
+
+                if filtered_predictions:
+                    prediction = filtered_predictions[0]
+                    prices = [prediction['6 Months'], prediction['9 Months'], prediction['1 Year']]
+                    prediction['graph'] = create_graph(selected_issuer, prices, 'medium-term')
+
+    return render_template('lstm_prediction.html', issuers=issuers, selected_issuer=selected_issuer,
+                           prediction=prediction, missing_issuer=missing_issuer, prediction_type=prediction_type)
+
 
 
 @app.route('/about')

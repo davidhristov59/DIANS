@@ -84,9 +84,14 @@ header {
     transition: background-color 0.3s ease;
 }
 
+.navbar {
+    font-style: italic;
+}
+
 .navbar-brand {
-    font-size: 26px;
-    text-transform: uppercase;
+   font-size: 22px;
+   text-transform: full-size-kana;
+    font-style: italic;
     color: #ffffff;
     font-weight: 600;
     transition: color 0.3s ease;
@@ -98,7 +103,20 @@ header {
 }
 
 .navbar-brand:hover {
-    color: #ff6f61;
+    color: #2e8783;
+}
+
+.navbar-nav .nav-item .nav-link {
+    transition: color 0.3s ease;
+    color: #ffffff; /* Ensure initial color */
+}
+
+.navbar-nav .nav-item .nav-link:hover {
+    color: #2e8783 !important; /* Hover effect */
+}
+
+.navbar-nav .nav-item .nav-link:active {
+    color: #ff6f61 !important; /* Active state */
 }
 
 .navbar-nav .nav-link {
@@ -108,9 +126,10 @@ header {
     transition: color 0.3s ease;
 }
 
-.navbar-nav .nav-link:hover {
-    color: #ff6f61;
+.navbar-toggler:hover {
+    color:  #2e8783;
 }
+
 
 #load-data-btn {
     background-color: #2c2c2c;
@@ -125,7 +144,7 @@ header {
 }
 
 #load-data-btn:hover {
-    background-color: #ff6f61;
+    background-color: #2e8783;
     transform: translateY(-2px);
 }
 

@@ -40,7 +40,7 @@ def main():
     # output_file = "parsedNumbers_data_2024.csv"
 
     input_file = "filtered_stock_data_2022_2023_2024.csv"
-    output_file = "../parsedNumbers_data_2022_24.csv"
+    output_file = "parsedNumbers_data_2022_24.csv"
 
     parse_macedonian_numbers(input_file, output_file)
 
