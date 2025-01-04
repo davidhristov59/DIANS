@@ -1,0 +1,93 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #2e8783;
+}
+
+header .navbar-brand {
+    color: #fff;
+    font-weight: 500;
+}
+
+header .nav-link {
+    color: #d9e6f2;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+header .nav-link:hover {
+    color: #ffffff;
+}
+
+main {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#load-data-btn {
+    background-color: #2e8783;
+    color: #fff;
+    border: none;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#load-data-btn:hover {
+    background-color: darkslategrey;
+    transform: scale(1.05);
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+thead {
+    background-color: #2e8783;
+    color: #ffffff;
+}
+
+tbody tr {
+    background-color: #f9fafc;
+    border-bottom: 1px solid #dee2e6;
+}
+
+tbody tr:hover {
+    background-color: #e6f1ff;
+}
+
+tbody tr td {
+    padding: 12px;
+    font-size: 0.9rem;
+}
+
+tbody tr td:first-child {
+    font-weight: 500;
+}
+
+footer {
+    background-color: #2e8783;
+    color: #d9e6f2;
+    text-align: center;
+    padding: 15px;
+}
+
+.navbar-brand:hover {
+    color: oldlace;
+
+}
+
+#loading-overlay {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    /* Add any other spinner styling you want */
+}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='graphs.css') }}">
+
+    <title>Графикони</title>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<header>
+    <div class="navbar-brand text-center">Графикони за Македонска Берза</div>
+</header>
+
+<main>
+    <!-- Display error message if exists -->
+    {% if error %}
+    <div class="alert">{{ error }}</div>
+    {% endif %}
+
+    <!-- Display the graph if the base64 string is available -->
+    {% if graph_base64 %}
+        <h2 class="text-center" style="margin-left: 285px;">Графикон за {{ selected_issuer }}</h2>
+        <div class="text-center">
+            <img src="data:image/png;base64,{{ graph_base64 }}" alt="Stock Price Graph">
+            <button id="backToGraphs" class="go-back-btn mt-3">Назад</button>
+        </div>
+    {% else %}
+        <p class="text-center text-muted">Нема достапен графикон.</p>
+    {% endif %}
+
+    <!-- Display the form only if the graph is not available -->
+    {% if not graph_base64 %}
+        <form method="POST" id="issuerForm">
+            <label for="issuer">Избери издавач:</label>
+            <select name="issuer" id="issuer">
+                {% for issuer in issuers %}
+                <option value="{{ issuer }}">{{ issuer }}</option>
+                {% endfor %}
+            </select>
+            <button  type="submit">Генерирај Граф</button>
+        </form>
+    {% endif %}
+</main>
+<div style="margin: 20px">
+    <button style="margin-left: 970px;" id="backToMain" class="go-back-btn mt-3">Назад кон Почетна</button>
+</div>
+
+<footer>
+    <p>&copy; Дизајн И Архитектура на Софтвер 2024
+    </p>
+</footer>
+</body>
+<script>
+    const backToMain = document.getElementById('backToMain');
+    backToMain.addEventListener('click', () => {
+        window.location.href = '/';
+    });
+
+    const backToGraphs = document.getElementById('backToGraphs');
+    if (backToGraphs) {
+        backToGraphs.addEventListener('click', () => {
+            window.location.href = '/graphs';
+        });
+    }
+</script>
