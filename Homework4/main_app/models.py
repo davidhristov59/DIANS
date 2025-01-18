@@ -8,7 +8,7 @@ import io
 import base64
 import csv
 
-DATA_FILE = "../Homework1/filtered_stock_data.csv"
+DATA_FILE = "filtered_stock_data.csv"
 
 
 def load_stock_data():
@@ -142,7 +142,7 @@ def parse_macedonian_price(price_str):
 
 def get_description_for_issuer(issuer):
     try:
-        with open('data/analysis_results.csv', mode='r', encoding='utf-8') as csvfile:
+        with open('../prediction_service/data/analysis_results.csv', mode='r', encoding='utf-8') as csvfile:
             csv_reader = csv.DictReader(csvfile)
             for row in csv_reader:
                 if row['Issuer Name'] == issuer:

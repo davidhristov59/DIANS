@@ -102,6 +102,31 @@ def fundamental_analysis():
                            description=description, missing_issuer=missing_issuer)
 
 
+# @app.route('/fundamentalAnalysis', methods=['GET', 'POST'])
+# def fundamental_analysis():
+#     """Render or handle fundamental analysis."""
+#     if request.method == 'GET':
+#         # Render the form or page for fundamental analysis
+#         return render_template('fundamentalAnalysis.html')
+#     elif request.method == 'POST':
+#         # Communicate with the fundamental analysis service
+#         issuer = request.json.get('issuer')
+#         response = requests.post('http://fundamental_service:5002/get_description', json={'issuer': issuer})
+#         return jsonify(response.json())
+#
+# @app.route('/lstmPrediction', methods=['GET', 'POST'])
+# def lstm_prediction():
+#     """Render or handle LSTM prediction."""
+#     if request.method == 'GET':
+#         # Render the form or page for LSTM prediction
+#         return render_template('lstmPrediction.html')
+#     elif request.method == 'POST':
+#         # Communicate with the LSTM prediction service
+#         data = request.json
+#         response = requests.post('http://prediction_service:5003/predict', json=data)
+#         return jsonify(response.json())
+
+
 @app.route('/lstmPrediction', methods=['GET', 'POST'])
 def lstm_prediction():
     issuers = ['ALK', 'GRNT', 'KMB', 'MPT', 'MTUR', 'OKTA', 'REPL', 'SBT', 'STB',
@@ -120,7 +145,7 @@ def lstm_prediction():
             missing_issuer = True
         else:
             if prediction_type == 'short-term':
-                predictions = get_short_term_predictions('data/optimized_predictions.csv')
+                predictions = get_short_term_predictions('../prediction_service/data/optimized_predictions.csv')
                 filtered_predictions = [p for p in predictions if p['Issuer'] == selected_issuer]
 
                 if filtered_predictions:
@@ -129,7 +154,7 @@ def lstm_prediction():
                     prediction['graph'] = create_graph(selected_issuer, prices, 'short-term')
 
             elif prediction_type == 'medium-term':
-                predictions = get_medium_term_predictions('data/optimized_predictions_22-24.csv')
+                predictions = get_medium_term_predictions('../prediction_service/data/optimized_predictions_22-24.csv')
                 filtered_predictions = [p for p in predictions if p['Issuer'] == selected_issuer]
 
                 if filtered_predictions:

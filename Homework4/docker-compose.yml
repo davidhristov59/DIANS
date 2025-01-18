@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  main_app:
+    container_name: main_app
+    build:
+      context: ./main_app  # Path to the main app directory
+    ports:
+      - "5000:5000"
+    environment:
+      - PREDICTION_SERVICE_URL=http://prediction-service:5003/predict
+    volumes:
+      - ./main_app:/app  # Mount the local directory to the container
+    depends_on:
+      - prediction-service  # Ensure prediction-service starts first
+    networks:
+      - app-network  # Use the same network as prediction-service
+
+  prediction-service:
+    container_name: prediction-service
+    build:
+      context: ./prediction_service  # Path to the prediction service directory
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./prediction_service:/app  # Mount the local directory to the container
+    networks:
+      - app-network  # Use the same network as main_app
+
+networks:
+  app-network:
+    driver: bridge  # Default driver
